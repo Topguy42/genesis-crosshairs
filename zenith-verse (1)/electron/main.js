@@ -222,14 +222,21 @@ function createOverlayWindow() {
   // Additional visibility settings for cross-platform support
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
-  console.log('Overlay window created with primary display bounds:', {
-    x: x,
-    y: y,
-    width: width,
-    height: height,
+  // Verify overlay window was created with correct bounds
+  const actualBounds = overlayWindow.getBounds();
+  console.log('Overlay window created with bounds:', {
+    requested: { x, y, width, height },
+    actual: actualBounds,
     platform: process.platform,
     primary: true
   });
+
+  // Double-check that overlay covers the expected area
+  if (actualBounds.x !== x || actualBounds.y !== y || actualBounds.width !== width || actualBounds.height !== height) {
+    console.warn('⚠️ Overlay bounds mismatch! Attempting to correct...');
+    overlayWindow.setBounds({ x, y, width, height });
+    console.log('Corrected bounds:', overlayWindow.getBounds());
+  }
 
   // Load overlay HTML
   overlayWindow.loadFile(path.join(__dirname, "overlay.html"));
