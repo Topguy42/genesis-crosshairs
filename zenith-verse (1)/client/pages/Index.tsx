@@ -1655,11 +1655,6 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
   return (
     <>
 
-
-
-
-
-
       <div className="h-full bg-background flex flex-col overflow-hidden">
         {/* Header */}
         <header className="border-b border-border/50 bg-card/50 backdrop-blur">
@@ -1795,8 +1790,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                                 }
                               }
                             } else {
-                              // Web browser - Use built-in React overlay
-                              setSystemOverlayActive(!systemOverlayActive);
+                              console.warn('Electron desktop app required for overlay functionality');
                             }
                           }}
                           className="w-full bg-gaming-purple hover:bg-gaming-purple/80"
@@ -3029,7 +3023,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                     })()} resolution</li>
                     <li>• <span className="text-gaming-blue">FOV Compensation:</span> Each game preset includes FOV-specific adjustments</li>
                     <li>• <span className="text-gaming-purple">Aspect Ratio:</span> Ultrawide and 4:3 monitors get specialized positioning</li>
-                    <li>• <span className="text-gaming-orange">Game Mechanics:</span> Weapon sway, UI elements, and camera angles accounted for</li>
+                    <li>��� <span className="text-gaming-orange">Game Mechanics:</span> Weapon sway, UI elements, and camera angles accounted for</li>
                     <li>• <span className="text-gaming-cyan">Pro Tip:</span> Test in aim trainers first, then practice mode before ranked</li>
                     <li>• Save game-specific profiles for quick switching between games</li>
                   </ul>
