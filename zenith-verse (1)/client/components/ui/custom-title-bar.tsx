@@ -44,24 +44,45 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
     };
   }, [inElectron]);
 
-  const handleMinimize = () => {
+  const handleMinimize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log('Minimize clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
-    if (inElectron) {
-      (window as any).electronAPI.minimizeWindow();
+    if (inElectron && (window as any).electronAPI) {
+      try {
+        (window as any).electronAPI.minimizeWindow();
+        console.log('Minimize window called successfully');
+      } catch (error) {
+        console.error('Error calling minimizeWindow:', error);
+      }
     }
   };
 
-  const handleMaximize = () => {
+  const handleMaximize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log('Maximize clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
-    if (inElectron) {
-      (window as any).electronAPI.maximizeWindow();
+    if (inElectron && (window as any).electronAPI) {
+      try {
+        (window as any).electronAPI.maximizeWindow();
+        console.log('Maximize window called successfully');
+      } catch (error) {
+        console.error('Error calling maximizeWindow:', error);
+      }
     }
   };
 
-  const handleClose = () => {
+  const handleClose = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log('Close clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
-    if (inElectron) {
-      (window as any).electronAPI.closeWindow();
+    if (inElectron && (window as any).electronAPI) {
+      try {
+        (window as any).electronAPI.closeWindow();
+        console.log('Close window called successfully');
+      } catch (error) {
+        console.error('Error calling closeWindow:', error);
+      }
     }
   };
 
