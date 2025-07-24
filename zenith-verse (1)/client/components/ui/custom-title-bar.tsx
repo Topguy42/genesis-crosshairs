@@ -52,44 +52,74 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
   }, [inElectron]);
 
   const handleMinimize = async () => {
-    console.log('Minimize button clicked');
+    console.log('=== MINIMIZE CLICKED ===');
+
+    // Method 1: Try electronAPI
     if ((window as any).electronAPI?.minimizeWindow) {
+      console.log('Using electronAPI');
       try {
-        const success = await (window as any).electronAPI.minimizeWindow();
-        console.log('Minimize operation success:', success);
+        await (window as any).electronAPI.minimizeWindow();
+        return;
       } catch (error) {
-        console.error('Minimize failed:', error);
+        console.error('electronAPI failed:', error);
       }
-    } else {
-      console.error('electronAPI.minimizeWindow not available');
+    }
+
+    // Method 2: Try direct require (fallback)
+    try {
+      console.log('Trying direct electron require');
+      const { ipcRenderer } = (window as any).require('electron');
+      ipcRenderer.invoke('minimize-window');
+    } catch (error) {
+      console.error('Direct require failed:', error);
     }
   };
 
   const handleMaximize = async () => {
-    console.log('Maximize button clicked');
+    console.log('=== MAXIMIZE CLICKED ===');
+
+    // Method 1: Try electronAPI
     if ((window as any).electronAPI?.maximizeWindow) {
+      console.log('Using electronAPI');
       try {
-        const success = await (window as any).electronAPI.maximizeWindow();
-        console.log('Maximize operation success:', success);
+        await (window as any).electronAPI.maximizeWindow();
+        return;
       } catch (error) {
-        console.error('Maximize failed:', error);
+        console.error('electronAPI failed:', error);
       }
-    } else {
-      console.error('electronAPI.maximizeWindow not available');
+    }
+
+    // Method 2: Try direct require (fallback)
+    try {
+      console.log('Trying direct electron require');
+      const { ipcRenderer } = (window as any).require('electron');
+      ipcRenderer.invoke('maximize-window');
+    } catch (error) {
+      console.error('Direct require failed:', error);
     }
   };
 
   const handleClose = async () => {
-    console.log('Close button clicked');
+    console.log('=== CLOSE CLICKED ===');
+
+    // Method 1: Try electronAPI
     if ((window as any).electronAPI?.closeWindow) {
+      console.log('Using electronAPI');
       try {
-        const success = await (window as any).electronAPI.closeWindow();
-        console.log('Close operation success:', success);
+        await (window as any).electronAPI.closeWindow();
+        return;
       } catch (error) {
-        console.error('Close failed:', error);
+        console.error('electronAPI failed:', error);
       }
-    } else {
-      console.error('electronAPI.closeWindow not available');
+    }
+
+    // Method 2: Try direct require (fallback)
+    try {
+      console.log('Trying direct electron require');
+      const { ipcRenderer } = (window as any).require('electron');
+      ipcRenderer.invoke('close-window');
+    } catch (error) {
+      console.error('Direct require failed:', error);
     }
   };
 
