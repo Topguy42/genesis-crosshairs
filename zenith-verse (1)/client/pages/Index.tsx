@@ -1797,8 +1797,8 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                                 }
                               }
                             } else {
-                              // Web browser - Use built-in React overlay
-                              setSystemOverlayActive(!systemOverlayActive);
+                              // Web browser - Use full-screen web overlay
+                              setWebOverlayActive(!webOverlayActive);
                             }
                           }}
                           className="w-full bg-gaming-purple hover:bg-gaming-purple/80"
@@ -1807,7 +1807,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                           soundVolume={0.4}
                         >
                           <Eye className="w-4 h-4 mr-2" />
-                          {systemOverlayActive
+                          {(systemOverlayActive || webOverlayActive)
                             ? "Take Off"
                             : "Use"
                           }
