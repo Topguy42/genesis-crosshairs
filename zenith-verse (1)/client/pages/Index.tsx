@@ -650,7 +650,6 @@ export default function Index() {
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showDataManager, setShowDataManager] = useState(false);
   const [aimTrainerMode, setAimTrainerMode] = useState<'2d' | '3d'>('3d');
-  const [webOverlayActive, setWebOverlayActive] = useState(false);
 
   // Lock position when settings dialog opens/closes to prevent layout shifts
   React.useEffect(() => {
