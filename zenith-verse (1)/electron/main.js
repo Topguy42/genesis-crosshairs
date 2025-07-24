@@ -575,9 +575,36 @@ ipcMain.handle("force-overlay-top", () => {
 // Handle overlay repositioning
 ipcMain.handle("refresh-overlay", () => {
   if (overlayWindow && crosshairSettings.visible) {
+    console.log('Refreshing overlay positioning');
     updateOverlayBounds();
-    overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+      }
+    }, 100);
   }
+});
+
+// Force overlay repositioning - useful when game presets change
+ipcMain.handle("force-overlay-refresh", () => {
+  if (overlayWindow) {
+    console.log('Force refreshing overlay - recalculating all positioning');
+
+    // First update bounds
+    updateOverlayBounds();
+
+    // Then ensure crosshair positioning is accurate
+    if (crosshairSettings.visible) {
+      setTimeout(() => {
+        if (overlayWindow && !overlayWindow.isDestroyed()) {
+          overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+        }
+      }, 150);
+    }
+
+    return true;
+  }
+  return false;
 });
 
 // Get primary display center coordinates relative to overlay window
