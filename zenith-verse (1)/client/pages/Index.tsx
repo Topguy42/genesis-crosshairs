@@ -649,7 +649,6 @@ export default function Index() {
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showDataManager, setShowDataManager] = useState(false);
   const [aimTrainerMode, setAimTrainerMode] = useState<'2d' | '3d'>('3d');
-  const [webPreviewActive, setWebPreviewActive] = useState(false);
 
   // Lock position when settings dialog opens/closes to prevent layout shifts
   React.useEffect(() => {
@@ -1647,7 +1646,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
           )}
           {!isElectron && (
             <div className="mt-1 text-xs text-white/80">
-              💡 Press ESC to hide overlay • Download desktop app for full system overlay functionality
+              ���� Press ESC to hide overlay • Download desktop app for full system overlay functionality
             </div>
           )}
         </div>
@@ -2882,7 +2881,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                       }`} />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>↑ Up</span>
+                      <span>��� Up</span>
                       <span>Center</span>
                       <span>Down ↓</span>
                     </div>
