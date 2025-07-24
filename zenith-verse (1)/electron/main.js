@@ -144,11 +144,20 @@ function createMainWindow() {
 }
 
 function createOverlayWindow() {
-  // Start simple: use only primary display for now
+  // Get all display information for debugging
+  const allDisplays = screen.getAllDisplays();
   const primaryDisplay = screen.getPrimaryDisplay();
+
+  console.log('=== OVERLAY WINDOW CREATION DEBUG ===');
+  console.log('All displays:', allDisplays.map(d => ({ id: d.id, bounds: d.bounds, scaleFactor: d.scaleFactor })));
+  console.log('Primary display:', primaryDisplay);
+
+  // Use primary display bounds - this should cover the entire primary screen
   const { x, y, width, height } = primaryDisplay.bounds;
 
-  console.log('Creating overlay on primary display:', { x, y, width, height });
+  console.log('Creating overlay with bounds:', { x, y, width, height });
+  console.log('Overlay will be positioned at screen coordinates:', { x, y });
+  console.log('Overlay size:', { width, height });
 
   overlayWindow = new BrowserWindow({
     width: width,
