@@ -144,29 +144,11 @@ function createMainWindow() {
 }
 
 function createOverlayWindow() {
-  // Get all displays to calculate total screen area
-  const displays = screen.getAllDisplays();
+  // Start simple: use only primary display for now
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { x, y, width, height } = primaryDisplay.bounds;
 
-  // Calculate bounds to cover all monitors
-  let minX = 0, minY = 0, maxX = 0, maxY = 0;
-
-  if (displays.length > 0) {
-    minX = Math.min(...displays.map(d => d.bounds.x));
-    minY = Math.min(...displays.map(d => d.bounds.y));
-    maxX = Math.max(...displays.map(d => d.bounds.x + d.bounds.width));
-    maxY = Math.max(...displays.map(d => d.bounds.y + d.bounds.height));
-  } else {
-    // Fallback to primary display
-    const primaryDisplay = screen.getPrimaryDisplay();
-    minX = 0;
-    minY = 0;
-    maxX = primaryDisplay.bounds.width;
-    maxY = primaryDisplay.bounds.height;
-  }
-
-  // Calculate total dimensions
-  const totalWidth = maxX - minX;
-  const totalHeight = maxY - minY;
+  console.log('Creating overlay on primary display:', { x, y, width, height });
 
   overlayWindow = new BrowserWindow({
     width: totalWidth,
