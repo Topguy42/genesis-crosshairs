@@ -891,6 +891,23 @@
           renderCrosshair(settings);
           showHotkeyIndicator();
         });
+
+        // Test positioning immediately when overlay loads
+        setTimeout(() => {
+          const testSettings = {
+            style: 'cross',
+            color: '#ff0000',
+            size: 30,
+            opacity: 100,
+            thickness: 3,
+            gap: 0,
+            offsetX: 0,
+            offsetY: 0
+          };
+          console.log('=== OVERLAY LOAD TEST ===');
+          console.log('Testing crosshair positioning on overlay load...');
+          renderCrosshair(testSettings);
+        }, 1000);
       }
 
       // Show hotkey indicator on load
