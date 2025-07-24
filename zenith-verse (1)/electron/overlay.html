@@ -162,36 +162,40 @@
         crosshairElement.style.width = size + "px";
         crosshairElement.style.height = size + "px";
 
-        // Apply position offset - center on primary display regardless of multi-monitor setup
-        // Start with fallback (overlay window center)
+        // SIMPLIFIED APPROACH: Just use the window center
+        // Since overlay now covers the primary display exactly, center = window center
         let centerX = window.innerWidth / 2;
         let centerY = window.innerHeight / 2;
 
-        // If we have overlay API, get the actual primary screen center
+        console.log('=== SIMPLIFIED CROSSHAIR POSITIONING ===');
+        console.log('Overlay window size:', window.innerWidth, 'x', window.innerHeight);
+        console.log('Calculated center:', centerX, centerY);
+        console.log('User offsets:', offsetX, offsetY);
+        console.log('Final position:', Math.round(centerX + offsetX), Math.round(centerY + offsetY));
+
+        // Optional: Try to get precise center from API, but don't rely on it
         if (window.overlayAPI && window.overlayAPI.getPrimaryDisplayCenter) {
           try {
             const primaryCenter = window.overlayAPI.getPrimaryDisplayCenter();
             if (primaryCenter && primaryCenter.x !== undefined && primaryCenter.y !== undefined) {
-              // Use the calculated primary display center
-              centerX = primaryCenter.x;
-              centerY = primaryCenter.y;
+              console.log('API says center should be:', primaryCenter.x, primaryCenter.y);
+              console.log('Difference from calculated:',
+                Math.abs(centerX - primaryCenter.x),
+                Math.abs(centerY - primaryCenter.y)
+              );
 
-              console.log('Primary display center info:', primaryCenter);
-              console.log('Overlay window size:', window.innerWidth, 'x', window.innerHeight);
-              console.log('Using center coordinates:', centerX, centerY);
-              console.log('With offsets:', offsetX, offsetY);
-              console.log('Final crosshair position:', Math.round(centerX + offsetX), Math.round(centerY + offsetY));
-            } else {
-              console.warn('Invalid primary display center data:', primaryCenter);
-              console.log('Using fallback overlay center:', centerX, centerY);
+              // Use API center if it seems reasonable
+              if (Math.abs(centerX - primaryCenter.x) < 100 && Math.abs(centerY - primaryCenter.y) < 100) {
+                centerX = primaryCenter.x;
+                centerY = primaryCenter.y;
+                console.log('Using API center coordinates');
+              } else {
+                console.log('API center seems wrong, using calculated center');
+              }
             }
           } catch (error) {
-            console.error('Failed to get primary display center:', error);
-            console.log('Using fallback overlay center:', centerX, centerY);
+            console.log('API center failed, using calculated center:', error.message);
           }
-        } else {
-          console.warn('Overlay API not available for primary display center');
-          console.log('Using fallback overlay center:', centerX, centerY);
         }
 
         crosshairElement.style.top = `${centerY + offsetY}px`;
