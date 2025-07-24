@@ -626,42 +626,45 @@ ipcMain.on("get-primary-display-center", (event) => {
     const primaryDisplay = screen.getPrimaryDisplay();
     const allDisplays = screen.getAllDisplays();
 
-    // Calculate overlay window offset with buffer
-    let minX = Infinity, minY = Infinity;
-    allDisplays.forEach(display => {
-      const { x, y } = display.bounds;
-      minX = Math.min(minX, x);
-      minY = Math.min(minY, y);
-    });
+    // Calculate overlay window origin (top-left)
+    let overlayMinX = 0, overlayMinY = 0;
 
-    // Add buffer that was used in overlay window creation
-    const buffer = 100;
-    minX -= buffer;
-    minY -= buffer;
+    if (allDisplays.length > 0) {
+      overlayMinX = Math.min(...allDisplays.map(d => d.bounds.x));
+      overlayMinY = Math.min(...allDisplays.map(d => d.bounds.y));
+    }
 
-    // Calculate primary display center relative to overlay window
+    // Calculate primary display center in screen coordinates
     const primaryBounds = primaryDisplay.bounds;
-    const primaryCenterX = primaryBounds.x + (primaryBounds.width / 2) - minX;
-    const primaryCenterY = primaryBounds.y + (primaryBounds.height / 2) - minY;
+    const primaryScreenCenterX = primaryBounds.x + (primaryBounds.width / 2);
+    const primaryScreenCenterY = primaryBounds.y + (primaryBounds.height / 2);
+
+    // Convert to overlay window coordinates
+    const primaryCenterX = primaryScreenCenterX - overlayMinX;
+    const primaryCenterY = primaryScreenCenterY - overlayMinY;
 
     console.log('Primary display center calculation:', {
       primaryBounds,
-      overlayOffset: { x: minX, y: minY },
-      calculatedCenter: { x: primaryCenterX, y: primaryCenterY }
+      primaryScreenCenter: { x: primaryScreenCenterX, y: primaryScreenCenterY },
+      overlayOrigin: { x: overlayMinX, y: overlayMinY },
+      overlayRelativeCenter: { x: primaryCenterX, y: primaryCenterY }
     });
 
     event.returnValue = {
       x: primaryCenterX,
       y: primaryCenterY,
       primaryBounds: primaryBounds,
-      overlayOffset: { x: minX, y: minY }
+      overlayOrigin: { x: overlayMinX, y: overlayMinY },
+      screenCenter: { x: primaryScreenCenterX, y: primaryScreenCenterY }
     };
   } catch (error) {
     console.error('Error calculating primary display center:', error);
     // Fallback to overlay window center
+    const fallbackX = overlayWindow ? overlayWindow.getBounds().width / 2 : 0;
+    const fallbackY = overlayWindow ? overlayWindow.getBounds().height / 2 : 0;
     event.returnValue = {
-      x: overlayWindow ? overlayWindow.getBounds().width / 2 : 0,
-      y: overlayWindow ? overlayWindow.getBounds().height / 2 : 0
+      x: fallbackX,
+      y: fallbackY
     };
   }
 });
