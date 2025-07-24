@@ -1768,6 +1768,16 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                         </div>
                       </div>
 
+                      {/* Desktop App Notice */}
+                      {!isElectron && (
+                        <div className="p-3 bg-gaming-blue/10 border border-gaming-blue/20 rounded-lg">
+                          <div className="text-xs font-medium text-gaming-blue mb-1">Web Browser Mode</div>
+                          <div className="text-xs text-muted-foreground">
+                            For system-wide overlay over any game, download the desktop app
+                          </div>
+                        </div>
+                      )}
+
                       <div className="space-y-2 pt-4 border-t">
 
 
