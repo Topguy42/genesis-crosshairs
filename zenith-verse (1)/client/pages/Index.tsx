@@ -1287,6 +1287,13 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
 
     if ((window as any).electronAPI) {
       console.log('electronAPI methods:', Object.keys((window as any).electronAPI));
+      // Test the API methods
+      console.log('Testing electronAPI methods...');
+      (window as any).electronAPI.getCrosshairSettings().then((settings: any) => {
+        console.log('Current crosshair settings from Electron:', settings);
+      }).catch((error: any) => {
+        console.error('Failed to get crosshair settings:', error);
+      });
     }
     console.log('=== END ELECTRON DEBUG ===');
 
