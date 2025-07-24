@@ -41,8 +41,9 @@ function createMainWindow() {
     titleBarStyle: 'hidden', // Hide title bar on macOS
     trafficLightPosition: { x: 20, y: 20 }, // Position macOS controls
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false,
       preload: path.join(__dirname, "preload.js"),
     },
     icon: path.join(__dirname, "../public/icon.png"),
@@ -670,29 +671,41 @@ ipcMain.handle("update-floating-dialog-position", (event, { id, x, y }) => {
   return false;
 });
 
-// Window control handlers for custom title bar
+// Native Windows-style window control handlers
 ipcMain.handle("minimize-window", () => {
-  if (mainWindow) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    console.log('Minimizing window using native method');
     mainWindow.minimize();
+    return true;
   }
+  return false;
 });
 
 ipcMain.handle("maximize-window", () => {
-  if (mainWindow) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    console.log('Toggling maximize state using native method');
     if (mainWindow.isMaximized()) {
-      mainWindow.unmaximize();
+      mainWindow.restore(); // Use restore() instead of unmaximize() for better Windows compatibility
     } else {
       mainWindow.maximize();
     }
+    return true;
   }
+  return false;
 });
 
 ipcMain.handle("close-window", () => {
-  if (mainWindow) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    console.log('Closing window using native method');
     mainWindow.close();
+    return true;
   }
+  return false;
 });
 
 ipcMain.handle("is-window-maximized", () => {
-  return mainWindow ? mainWindow.isMaximized() : false;
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    return mainWindow.isMaximized();
+  }
+  return false;
 });

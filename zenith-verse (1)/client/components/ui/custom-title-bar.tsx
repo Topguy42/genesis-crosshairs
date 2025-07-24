@@ -17,6 +17,10 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
   const inElectron = isElectron();
 
   useEffect(() => {
+    console.log('CustomTitleBar useEffect - inElectron:', inElectron);
+    console.log('electronAPI available:', !!(window as any).electronAPI);
+    console.log('electronAPI methods:', (window as any).electronAPI ? Object.keys((window as any).electronAPI) : 'N/A');
+
     if (!inElectron) return;
 
     const electronAPI = (window as any).electronAPI;
@@ -28,7 +32,10 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
 
     // Check initial maximized state
     electronAPI.isWindowMaximized().then((maximized: boolean) => {
+      console.log('Initial maximized state:', maximized);
       setIsMaximized(maximized);
+    }).catch((error: any) => {
+      console.error('Failed to get initial maximized state:', error);
     });
 
     // Listen for window state changes
@@ -44,21 +51,75 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
     };
   }, [inElectron]);
 
-  const handleMinimize = () => {
-    if (inElectron) {
-      (window as any).electronAPI.minimizeWindow();
+  const handleMinimize = async () => {
+    console.log('=== MINIMIZE CLICKED ===');
+
+    // Method 1: Try electronAPI
+    if ((window as any).electronAPI?.minimizeWindow) {
+      console.log('Using electronAPI');
+      try {
+        await (window as any).electronAPI.minimizeWindow();
+        return;
+      } catch (error) {
+        console.error('electronAPI failed:', error);
+      }
+    }
+
+    // Method 2: Try direct require (fallback)
+    try {
+      console.log('Trying direct electron require');
+      const { ipcRenderer } = (window as any).require('electron');
+      ipcRenderer.invoke('minimize-window');
+    } catch (error) {
+      console.error('Direct require failed:', error);
     }
   };
 
-  const handleMaximize = () => {
-    if (inElectron) {
-      (window as any).electronAPI.maximizeWindow();
+  const handleMaximize = async () => {
+    console.log('=== MAXIMIZE CLICKED ===');
+
+    // Method 1: Try electronAPI
+    if ((window as any).electronAPI?.maximizeWindow) {
+      console.log('Using electronAPI');
+      try {
+        await (window as any).electronAPI.maximizeWindow();
+        return;
+      } catch (error) {
+        console.error('electronAPI failed:', error);
+      }
+    }
+
+    // Method 2: Try direct require (fallback)
+    try {
+      console.log('Trying direct electron require');
+      const { ipcRenderer } = (window as any).require('electron');
+      ipcRenderer.invoke('maximize-window');
+    } catch (error) {
+      console.error('Direct require failed:', error);
     }
   };
 
-  const handleClose = () => {
-    if (inElectron) {
-      (window as any).electronAPI.closeWindow();
+  const handleClose = async () => {
+    console.log('=== CLOSE CLICKED ===');
+
+    // Method 1: Try electronAPI
+    if ((window as any).electronAPI?.closeWindow) {
+      console.log('Using electronAPI');
+      try {
+        await (window as any).electronAPI.closeWindow();
+        return;
+      } catch (error) {
+        console.error('electronAPI failed:', error);
+      }
+    }
+
+    // Method 2: Try direct require (fallback)
+    try {
+      console.log('Trying direct electron require');
+      const { ipcRenderer } = (window as any).require('electron');
+      ipcRenderer.invoke('close-window');
+    } catch (error) {
+      console.error('Direct require failed:', error);
     }
   };
 
@@ -100,7 +161,25 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
       {/* Center - Status indicators */}
       <div className="flex-1 flex items-center justify-center">
         <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-          {/* Optional status indicators can go here */}
+          {/* Debug info for testing */}
+          {inElectron ? (
+            <button
+              onClick={async () => {
+                console.log('Test button clicked');
+                console.log('electronAPI:', (window as any).electronAPI);
+                console.log('electronAPI methods:', Object.keys((window as any).electronAPI || {}));
+                if ((window as any).electronAPI?.minimizeWindow) {
+                  console.log('Testing minimize...');
+                  await (window as any).electronAPI.minimizeWindow();
+                }
+              }}
+              className="text-xs bg-blue-500 px-2 py-1 rounded"
+            >
+              Test API
+            </button>
+          ) : (
+            <span className="text-xs text-red-400">Not in Electron</span>
+          )}
         </div>
       </div>
 
@@ -111,11 +190,14 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
           onClick={handleMinimize}
           className={cn(
             "h-full w-12 flex items-center justify-center group",
-            "hover:bg-yellow-500/20 hover:text-yellow-500 transition-all duration-150",
+            "hover:bg-yellow-500/20 transition-all duration-150",
             "text-foreground/70 hover:text-yellow-500",
             "border-r border-border/10"
           )}
-          style={{ WebkitAppRegion: 'no-drag' as any }}
+          style={{
+            WebkitAppRegion: 'no-drag' as any,
+            userSelect: 'none'
+          }}
           aria-label="Minimize"
           title="Minimize (Ctrl+M)"
         >
@@ -127,11 +209,14 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
           onClick={handleMaximize}
           className={cn(
             "h-full w-12 flex items-center justify-center group",
-            "hover:bg-green-500/20 hover:text-green-500 transition-all duration-150",
+            "hover:bg-green-500/20 transition-all duration-150",
             "text-foreground/70 hover:text-green-500",
             "border-r border-border/10"
           )}
-          style={{ WebkitAppRegion: 'no-drag' as any }}
+          style={{
+            WebkitAppRegion: 'no-drag' as any,
+            userSelect: 'none'
+          }}
           aria-label={isMaximized ? "Restore" : "Maximize"}
           title={isMaximized ? "Restore (F11 for fullscreen)" : "Maximize (F11 for fullscreen)"}
         >
@@ -150,7 +235,10 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
             "hover:bg-red-500 hover:text-white transition-all duration-150",
             "text-foreground/70"
           )}
-          style={{ WebkitAppRegion: 'no-drag' as any }}
+          style={{
+            WebkitAppRegion: 'no-drag' as any,
+            userSelect: 'none'
+          }}
           aria-label="Close"
           title="Close"
         >
