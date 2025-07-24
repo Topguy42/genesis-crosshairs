@@ -564,26 +564,48 @@ ipcMain.handle("refresh-overlay", () => {
 
 // Get primary display center coordinates relative to overlay window
 ipcMain.on("get-primary-display-center", (event) => {
-  const primaryDisplay = screen.getPrimaryDisplay();
-  const allDisplays = screen.getAllDisplays();
+  try {
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const allDisplays = screen.getAllDisplays();
 
-  // Calculate overlay window offset
-  let minX = Infinity, minY = Infinity;
-  allDisplays.forEach(display => {
-    const { x, y } = display.bounds;
-    minX = Math.min(minX, x);
-    minY = Math.min(minY, y);
-  });
+    // Calculate overlay window offset with buffer
+    let minX = Infinity, minY = Infinity;
+    allDisplays.forEach(display => {
+      const { x, y } = display.bounds;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+    });
 
-  // Calculate primary display center relative to overlay window
-  const primaryBounds = primaryDisplay.bounds;
-  const primaryCenterX = primaryBounds.x + (primaryBounds.width / 2) - minX;
-  const primaryCenterY = primaryBounds.y + (primaryBounds.height / 2) - minY;
+    // Add buffer that was used in overlay window creation
+    const buffer = 100;
+    minX -= buffer;
+    minY -= buffer;
 
-  event.returnValue = {
-    x: primaryCenterX,
-    y: primaryCenterY
-  };
+    // Calculate primary display center relative to overlay window
+    const primaryBounds = primaryDisplay.bounds;
+    const primaryCenterX = primaryBounds.x + (primaryBounds.width / 2) - minX;
+    const primaryCenterY = primaryBounds.y + (primaryBounds.height / 2) - minY;
+
+    console.log('Primary display center calculation:', {
+      primaryBounds,
+      overlayOffset: { x: minX, y: minY },
+      calculatedCenter: { x: primaryCenterX, y: primaryCenterY }
+    });
+
+    event.returnValue = {
+      x: primaryCenterX,
+      y: primaryCenterY,
+      primaryBounds: primaryBounds,
+      overlayOffset: { x: minX, y: minY }
+    };
+  } catch (error) {
+    console.error('Error calculating primary display center:', error);
+    // Fallback to overlay window center
+    event.returnValue = {
+      x: overlayWindow ? overlayWindow.getBounds().width / 2 : 0,
+      y: overlayWindow ? overlayWindow.getBounds().height / 2 : 0
+    };
+  }
 });
 
 // Enable desktop-wide dragging mode
