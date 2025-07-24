@@ -1817,6 +1817,11 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                                 }
                               } catch (error) {
                                 console.error('Failed to activate crosshair overlay:', error);
+                                toast({
+                                  title: "Overlay Error",
+                                  description: `Failed to activate system overlay: ${error.message || 'Unknown error'}`,
+                                  variant: "destructive",
+                                });
                               }
                             }
                             console.log('=== BUTTON CLICK HANDLER COMPLETE ===');
