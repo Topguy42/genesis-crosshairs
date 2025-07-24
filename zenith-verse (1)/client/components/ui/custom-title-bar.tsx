@@ -158,33 +158,9 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
         </div>
       </div>
 
-      {/* Center - Status indicators */}
+      {/* Center - Empty space for dragging */}
       <div className="flex-1 flex items-center justify-center">
-        <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-          {/* Debug info for testing */}
-          {inElectron ? (
-            <button
-              onClick={async () => {
-                console.log('Test button clicked');
-                console.log('electronAPI:', (window as any).electronAPI);
-                console.log('electronAPI methods:', Object.keys((window as any).electronAPI || {}));
-                if ((window as any).electronAPI?.minimizeWindow) {
-                  console.log('Testing minimize...');
-                  await (window as any).electronAPI.minimizeWindow();
-                }
-              }}
-              className="text-xs bg-blue-500 px-2 py-1 rounded"
-              style={{
-                WebkitAppRegion: 'no-drag' as any,
-                userSelect: 'none'
-              }}
-            >
-              Test API
-            </button>
-          ) : (
-            <span className="text-xs text-red-400" />
-          )}
-        </div>
+        {/* This area is kept empty to maximize draggable space */}
       </div>
 
       {/* Right side - Window controls */}
