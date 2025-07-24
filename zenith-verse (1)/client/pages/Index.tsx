@@ -651,7 +651,6 @@ export default function Index() {
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showDataManager, setShowDataManager] = useState(false);
   const [aimTrainerMode, setAimTrainerMode] = useState<'2d' | '3d'>('3d');
-  const [previewOverlayActive, setPreviewOverlayActive] = useState(false);
 
   // Lock position when settings dialog opens/closes to prevent layout shifts
   React.useEffect(() => {
@@ -3073,7 +3072,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                     })()} resolution</li>
                     <li>• <span className="text-gaming-blue">FOV Compensation:</span> Each game preset includes FOV-specific adjustments</li>
                     <li>• <span className="text-gaming-purple">Aspect Ratio:</span> Ultrawide and 4:3 monitors get specialized positioning</li>
-                    <li>• <span className="text-gaming-orange">Game Mechanics:</span> Weapon sway, UI elements, and camera angles accounted for</li>
+                    <li>��� <span className="text-gaming-orange">Game Mechanics:</span> Weapon sway, UI elements, and camera angles accounted for</li>
                     <li>• <span className="text-gaming-cyan">Pro Tip:</span> Test in aim trainers first, then practice mode before ranked</li>
                     <li>• Save game-specific profiles for quick switching between games</li>
                   </ul>
