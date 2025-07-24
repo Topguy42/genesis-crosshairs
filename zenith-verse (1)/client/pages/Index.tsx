@@ -1767,76 +1767,35 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
 
                         <SoundButton
                           onClick={async () => {
-                            console.log('=== USE/TAKE OFF BUTTON CLICKED ===');
-                            console.log('Current systemOverlayActive:', systemOverlayActive);
-                            console.log('isElectron:', isElectron);
-                            console.log('electronAPI available:', !!(window as any).electronAPI);
-                            console.log('electronAPI methods:', (window as any).electronAPI ? Object.keys((window as any).electronAPI) : 'none');
-                            console.log('selectedPreset:', selectedPreset);
-                            console.log('platform info:', (window as any).platform);
-
                             // Desktop app only - Electron is required for system overlay
                             if (!isElectron || !(window as any).electronAPI) {
-                              console.warn('Desktop app required - System overlay only works in Electron environment');
                               alert('System overlay requires the desktop app. This is a desktop-only feature.');
                               return;
                             }
 
                             if (systemOverlayActive) {
-                              // Hide system overlay (Take Off)
+                              // Take Off - Hide overlay
                               try {
-                                console.log('Taking off crosshair overlay...');
                                 await (window as any).electronAPI.hideOverlay();
-                                console.log('hideOverlay API call completed');
                                 setSystemOverlayActive(false);
-                                console.log('systemOverlayActive set to false');
-                                console.log('Crosshair overlay removed successfully');
                               } catch (error) {
-                                console.error('Failed to remove crosshair overlay:', error);
-                                toast({
-                                  title: "Overlay Error",
-                                  description: `Failed to remove system overlay: ${error.message || 'Unknown error'}`,
-                                  variant: "destructive",
-                                });
+                                console.error('Failed to hide overlay:', error);
                               }
                             } else {
-                              // Show system overlay (Use)
-                              if (!selectedPreset) {
-                                console.warn('No crosshair selected');
-                                return;
-                              }
+                              // Use - Show overlay
+                              if (!selectedPreset) return;
 
                               try {
-                                console.log('Activating crosshair overlay...');
                                 const currentCrosshair = getCurrentCrosshairSettings();
-                                console.log('currentCrosshair settings:', currentCrosshair);
-
                                 if (currentCrosshair) {
-                                  console.log('Calling updateCrosshairSettings...');
                                   await (window as any).electronAPI.updateCrosshairSettings(currentCrosshair);
-                                  console.log('updateCrosshairSettings completed');
-
-                                  console.log('Calling showOverlay...');
                                   await (window as any).electronAPI.showOverlay();
-                                  console.log('showOverlay API call completed');
-
-                                  console.log('Setting systemOverlayActive to true...');
                                   setSystemOverlayActive(true);
-                                  console.log('systemOverlayActive has been set to true');
-                                  console.log('Crosshair overlay should now be activated');
-                                } else {
-                                  console.error('Failed to get current crosshair settings');
                                 }
                               } catch (error) {
-                                console.error('Failed to activate crosshair overlay:', error);
-                                toast({
-                                  title: "Overlay Error",
-                                  description: `Failed to activate system overlay: ${error.message || 'Unknown error'}`,
-                                  variant: "destructive",
-                                });
+                                console.error('Failed to show overlay:', error);
                               }
                             }
-                            console.log('=== BUTTON CLICK HANDLER COMPLETE ===');
                           }}
                           className="w-full bg-gaming-purple hover:bg-gaming-purple/80"
                           size="sm"
