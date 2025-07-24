@@ -512,7 +512,16 @@ ipcMain.handle("update-crosshair-settings", (event, settings) => {
 
   if (overlayWindow && crosshairSettings.visible) {
     console.log('Sending updated settings to overlay window');
-    overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+
+    // Ensure proper positioning by refreshing overlay bounds first
+    updateOverlayBounds();
+
+    // Wait a moment for bounds to settle, then send crosshair settings
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+      }
+    }, 100);
   }
 
   return crosshairSettings;
