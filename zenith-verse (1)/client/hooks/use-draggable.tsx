@@ -34,11 +34,20 @@ export function useDraggable(options: UseDraggableOptions = {}) {
   const updatePosition = useCallback((newPosition: Position) => {
     let constrainedPosition = newPosition;
 
-    // In gaming overlay mode, allow unrestricted positioning for desktop-wide dragging
+    // In gaming overlay mode or desktop dragging enabled, allow unrestricted positioning
     const isGamingOverlayMode = document.body.classList.contains("gaming-overlay-mode");
+    const isDesktopDraggingEnabled = options.enableDesktopDragging;
 
-    // Apply window constraints if enabled and not in gaming overlay mode
-    if (options.constrainToWindow && !options.enableDesktopDragging && !isGamingOverlayMode && elementRef.current) {
+    console.log('Dragging mode check:', {
+      enableDesktopDragging: options.enableDesktopDragging,
+      constrainToWindow: options.constrainToWindow,
+      isGamingOverlayMode,
+      isDesktopDraggingEnabled,
+      willConstrain: options.constrainToWindow && !isDesktopDraggingEnabled && !isGamingOverlayMode
+    });
+
+    // Only apply window constraints if specifically requested AND not in desktop dragging mode
+    if (options.constrainToWindow && !isDesktopDraggingEnabled && !isGamingOverlayMode && elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect();
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
@@ -54,6 +63,10 @@ export function useDraggable(options: UseDraggableOptions = {}) {
         x: Math.max(minX, Math.min(maxX, newPosition.x)),
         y: Math.max(minY, Math.min(maxY, newPosition.y))
       };
+
+      console.log('Applied window constraints:', { original: newPosition, constrained: constrainedPosition });
+    } else {
+      console.log('No constraints applied - desktop dragging enabled');
     }
 
     dragStateRef.current.currentPosition = constrainedPosition;
