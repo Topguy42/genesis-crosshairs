@@ -224,7 +224,12 @@ function createOverlayWindow() {
     y: minY,
     width: totalWidth,
     height: totalHeight,
-    platform: process.platform
+    platform: process.platform,
+    displays: displays.map(d => ({
+      id: d.id,
+      bounds: d.bounds,
+      primary: d === screen.getPrimaryDisplay()
+    }))
   });
 
   // Load overlay HTML
