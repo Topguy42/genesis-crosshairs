@@ -43,7 +43,7 @@ import {
   Copy,
   Download,
   Settings,
-  Crosshair,
+  Crosshair as CrosshairIcon,
   Target,
   Zap,
   Eye,
