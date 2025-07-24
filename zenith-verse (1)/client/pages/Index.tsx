@@ -1749,9 +1749,36 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
 
 
                         <SoundButton
-                          onClick={() => {
-                            if (!selectedPreset) return;
-                            setSystemOverlayActive(!systemOverlayActive);
+                          onClick={async () => {
+                            // Desktop app only - Electron is required for separate overlay window
+                            if (!isElectron || !(window as any).electronAPI) {
+                              alert('System overlay requires the desktop app. This is a desktop-only feature.');
+                              return;
+                            }
+
+                            if (systemOverlayActive) {
+                              // Take Off - Hide separate overlay window
+                              try {
+                                await (window as any).electronAPI.hideOverlay();
+                                setSystemOverlayActive(false);
+                              } catch (error) {
+                                console.error('Failed to hide overlay:', error);
+                              }
+                            } else {
+                              // Use - Show separate overlay window
+                              if (!selectedPreset) return;
+
+                              try {
+                                const currentCrosshair = getCurrentCrosshairSettings();
+                                if (currentCrosshair) {
+                                  await (window as any).electronAPI.updateCrosshairSettings(currentCrosshair);
+                                  await (window as any).electronAPI.showOverlay();
+                                  setSystemOverlayActive(true);
+                                }
+                              } catch (error) {
+                                console.error('Failed to show overlay:', error);
+                              }
+                            }
                           }}
                           className="w-full bg-gaming-purple hover:bg-gaming-purple/80"
                           size="sm"
@@ -2771,7 +2798,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                       }`} />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>← Left</span>
+                      <span>�� Left</span>
                       <span>Center</span>
                       <span>Right ��</span>
                     </div>
