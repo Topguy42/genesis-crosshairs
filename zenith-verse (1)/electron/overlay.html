@@ -153,6 +153,9 @@
         crosshairElement.style.left = `${centerX + offsetX}px`;
         crosshairElement.style.transform = "translate(-50%, -50%)";
 
+        // Update debug information
+        updateDebugInfo(centerX, centerY, offsetX, offsetY, settings);
+
         const centerSize = size;
         const lineLength = (centerSize - gap) / 2;
         const halfGap = gap / 2;
