@@ -768,20 +768,32 @@
           const finalX = centerX + (offsetX || 0);
           const finalY = centerY + (offsetY || 0);
 
+          // Get additional debug info
+          let primaryCenterInfo = "Not available";
+          if (window.overlayAPI && window.overlayAPI.getPrimaryDisplayCenter) {
+            try {
+              const info = window.overlayAPI.getPrimaryDisplayCenter();
+              primaryCenterInfo = `Screen: ${info.screenCenter?.x || 'N/A'}, ${info.screenCenter?.y || 'N/A'}<br>Overlay Origin: ${info.overlayOrigin?.x || 'N/A'}, ${info.overlayOrigin?.y || 'N/A'}`;
+            } catch (e) {
+              primaryCenterInfo = "Error: " + e.message;
+            }
+          }
+
           debugElement.innerHTML = `
-            Screen Center: ${centerX}, ${centerY}<br>
-            Offset: ${offsetX || 0}, ${offsetY || 0}<br>
+            <strong>Overlay Debug Info:</strong><br>
+            Window Size: ${window.innerWidth}x${window.innerHeight}<br>
+            Calculated Center: ${centerX}, ${centerY}<br>
+            User Offset: ${offsetX || 0}, ${offsetY || 0}<br>
             Final Position: ${Math.round(finalX)}, ${Math.round(finalY)}<br>
-            Style: ${settings.style}<br>
-            Size: ${settings.size}px<br>
-            Window: ${window.innerWidth}x${window.innerHeight}
+            ${primaryCenterInfo}<br>
+            Style: ${settings.style} | Size: ${settings.size}px
           `;
 
-          // Show debug info for a few seconds when crosshair updates
+          // Show debug info for longer to help with troubleshooting
           debugContainer.style.display = 'block';
           setTimeout(() => {
             debugContainer.style.display = 'none';
-          }, 5000);
+          }, 8000);
         }
       }
 
