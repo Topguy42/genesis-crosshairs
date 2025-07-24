@@ -1767,36 +1767,9 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                         )}
 
                         <SoundButton
-                          onClick={async () => {
-                            // Desktop app only - Electron is required for system overlay
-                            if (!isElectron || !(window as any).electronAPI) {
-                              alert('System overlay requires the desktop app. This is a desktop-only feature.');
-                              return;
-                            }
-
-                            if (systemOverlayActive) {
-                              // Take Off - Hide overlay
-                              try {
-                                await (window as any).electronAPI.hideOverlay();
-                                setSystemOverlayActive(false);
-                              } catch (error) {
-                                console.error('Failed to hide overlay:', error);
-                              }
-                            } else {
-                              // Use - Show overlay
-                              if (!selectedPreset) return;
-
-                              try {
-                                const currentCrosshair = getCurrentCrosshairSettings();
-                                if (currentCrosshair) {
-                                  await (window as any).electronAPI.updateCrosshairSettings(currentCrosshair);
-                                  await (window as any).electronAPI.showOverlay();
-                                  setSystemOverlayActive(true);
-                                }
-                              } catch (error) {
-                                console.error('Failed to show overlay:', error);
-                              }
-                            }
+                          onClick={() => {
+                            if (!selectedPreset) return;
+                            setSystemOverlayActive(!systemOverlayActive);
                           }}
                           className="w-full bg-gaming-purple hover:bg-gaming-purple/80"
                           size="sm"
