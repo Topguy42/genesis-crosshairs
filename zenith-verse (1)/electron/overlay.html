@@ -808,6 +808,29 @@
         }
       }
 
+      function showTestMarkers(centerX, centerY, offsetX, offsetY) {
+        // Show center test marker (red circle at true center)
+        const centerMarker = document.getElementById("center-test-marker");
+        if (centerMarker) {
+          centerMarker.style.display = 'block';
+          setTimeout(() => {
+            centerMarker.style.display = 'none';
+          }, 10000); // Show for 10 seconds
+        }
+
+        // Show crosshair position marker (lime dot)
+        const crosshairMarker = document.getElementById("crosshair-test-marker");
+        if (crosshairMarker) {
+          crosshairMarker.style.top = `${centerY + offsetY}px`;
+          crosshairMarker.style.left = `${centerX + offsetX}px`;
+          crosshairMarker.style.transform = "translate(-50%, -50%)";
+          crosshairMarker.style.display = 'block';
+          setTimeout(() => {
+            crosshairMarker.style.display = 'none';
+          }, 10000); // Show for 10 seconds
+        }
+      }
+
       function updateDebugInfo(centerX, centerY, offsetX, offsetY, settings) {
         const debugElement = document.getElementById("debug-content");
         const debugContainer = document.getElementById("position-debug");
