@@ -4539,6 +4539,42 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
           </div>
         </footer>
       </div>
+
+      {/* Always-on-top Crosshair Overlay */}
+      {systemOverlayActive && selectedPreset && (
+        <div
+          className="fixed inset-0 pointer-events-none z-[9999999]"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 2147483647, // Maximum z-index
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
+          <div
+            className="absolute top-1/2 left-1/2"
+            style={{
+              transform: `translate(-50%, -50%) translate(${positionSettings.offsetX}px, ${positionSettings.offsetY}px)`,
+            }}
+          >
+            <Crosshair
+              style={selectedPreset.style}
+              color={customizations[selectedPreset.id]?.color || selectedPreset.color}
+              size={customizations[selectedPreset.id]?.size || selectedPreset.size}
+              opacity={customizations[selectedPreset.id]?.opacity || selectedPreset.opacity}
+              thickness={customizations[selectedPreset.id]?.thickness || selectedPreset.thickness || 2}
+              gap={customizations[selectedPreset.id]?.gap || selectedPreset.gap || 0}
+              offsetX={positionSettings.offsetX}
+              offsetY={positionSettings.offsetY}
+              imageUrl={(selectedPreset as any).imageUrl}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }
