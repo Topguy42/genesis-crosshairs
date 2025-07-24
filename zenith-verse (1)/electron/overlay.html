@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crosshair Overlay</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: transparent;
+        overflow: hidden;
+        user-select: none;
+        pointer-events: none;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      .overlay-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+      }
+
+      .crosshair {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: top 0.1s ease, left 0.1s ease;
+        z-index: 2147483647; /* Maximum z-index to ensure visibility */
+      }
+
+      .crosshair-element {
+        position: absolute;
+        background: currentColor;
+      }
+
+      .hotkey-indicator {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: monospace;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .hotkey-indicator.show {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay-container">
+      <div id="crosshair" class="crosshair"></div>
+    </div>
+
+    <div id="hotkey-indicator" class="hotkey-indicator">
+      Press F1 to toggle crosshair
+    </div>
+
+    <script>
+      let currentSettings = null;
+
+      function renderCrosshair(settings) {
+        const crosshairElement = document.getElementById("crosshair");
+        crosshairElement.innerHTML = "";
+
+        if (!settings) return;
+
+        const {
+          style,
+          color,
+          size,
+          opacity,
+          thickness = 2,
+          gap = 4,
+          offsetX = 0,
+          offsetY = 0,
+        } = settings;
+
+        crosshairElement.style.color = color;
+        crosshairElement.style.opacity = opacity / 100;
+        crosshairElement.style.width = size + "px";
+        crosshairElement.style.height = size + "px";
+
+        // Apply position offset - center on primary display regardless of multi-monitor setup
+        // Get primary screen center from the overlay API
+        let centerX = window.innerWidth / 2;
+        let centerY = window.innerHeight / 2;
+
+        // If we have overlay API, get the actual primary screen center
+        if (window.overlayAPI && window.overlayAPI.getPrimaryDisplayCenter) {
+          try {
+            const primaryCenter = window.overlayAPI.getPrimaryDisplayCenter();
+            if (primaryCenter && primaryCenter.x !== undefined && primaryCenter.y !== undefined) {
+              centerX = primaryCenter.x;
+              centerY = primaryCenter.y;
+              console.log('Using primary display center:', primaryCenter);
+            } else {
+              console.log('Primary display center not available, using fallback');
+            }
+          } catch (error) {
+            console.warn('Failed to get primary display center:', error);
+          }
+        } else {
+          console.log('Overlay API not available for primary display center');
+        }
+
+        crosshairElement.style.top = `${centerY + offsetY}px`;
+        crosshairElement.style.left = `${centerX + offsetX}px`;
+        crosshairElement.style.transform = "translate(-50%, -50%)";
+
+        const centerSize = size;
+        const lineLength = (centerSize - gap) / 2;
+        const halfGap = gap / 2;
+
+        switch (style) {
+          case "dot":
+          case "micro-dot":
+            const dot = document.createElement("div");
+            dot.style.width = size + "px";
+            dot.style.height = size + "px";
+            dot.style.borderRadius = "50%";
+            dot.style.backgroundColor = "currentColor";
+            crosshairElement.appendChild(dot);
+            break;
+
+          case "cross":
+          case "thick-cross":
+            // Horizontal line
+            const hLine = document.createElement("div");
+            hLine.style.position = "absolute";
+            hLine.style.width = centerSize + "px";
+            hLine.style.height = thickness + "px";
+            hLine.style.backgroundColor = "currentColor";
+            hLine.style.top = "50%";
+            hLine.style.left = "50%";
+            hLine.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(hLine);
+
+            // Vertical line
+            const vLine = document.createElement("div");
+            vLine.style.position = "absolute";
+            vLine.style.width = thickness + "px";
+            vLine.style.height = centerSize + "px";
+            vLine.style.backgroundColor = "currentColor";
+            vLine.style.top = "50%";
+            vLine.style.left = "50%";
+            vLine.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(vLine);
+            break;
+
+          case "circle":
+          case "double-ring":
+            const circle = document.createElement("div");
+            circle.style.width = size + "px";
+            circle.style.height = size + "px";
+            circle.style.borderRadius = "50%";
+            circle.style.border = thickness + "px solid currentColor";
+            circle.style.backgroundColor = "transparent";
+            crosshairElement.appendChild(circle);
+
+            if (style === "double-ring") {
+              const innerCircle = document.createElement("div");
+              innerCircle.style.position = "absolute";
+              innerCircle.style.width = (size * 0.6) + "px";
+              innerCircle.style.height = (size * 0.6) + "px";
+              innerCircle.style.borderRadius = "50%";
+              innerCircle.style.border = (thickness / 2) + "px solid currentColor";
+              innerCircle.style.backgroundColor = "transparent";
+              innerCircle.style.top = "50%";
+              innerCircle.style.left = "50%";
+              innerCircle.style.transform = "translate(-50%, -50%)";
+              crosshairElement.appendChild(innerCircle);
+            }
+            break;
+
+          case "plus":
+          case "center-gap":
+            // Top line
+            const topLine = document.createElement("div");
+            topLine.style.position = "absolute";
+            topLine.style.width = thickness + "px";
+            topLine.style.height = lineLength + "px";
+            topLine.style.backgroundColor = "currentColor";
+            topLine.style.top = "0";
+            topLine.style.left = "50%";
+            topLine.style.transform = "translateX(-50%)";
+            crosshairElement.appendChild(topLine);
+
+            // Bottom line
+            const bottomLine = document.createElement("div");
+            bottomLine.style.position = "absolute";
+            bottomLine.style.width = thickness + "px";
+            bottomLine.style.height = lineLength + "px";
+            bottomLine.style.backgroundColor = "currentColor";
+            bottomLine.style.bottom = "0";
+            bottomLine.style.left = "50%";
+            bottomLine.style.transform = "translateX(-50%)";
+            crosshairElement.appendChild(bottomLine);
+
+            // Left line
+            const leftLine = document.createElement("div");
+            leftLine.style.position = "absolute";
+            leftLine.style.width = lineLength + "px";
+            leftLine.style.height = thickness + "px";
+            leftLine.style.backgroundColor = "currentColor";
+            leftLine.style.left = "0";
+            leftLine.style.top = "50%";
+            leftLine.style.transform = "translateY(-50%)";
+            crosshairElement.appendChild(leftLine);
+
+            // Right line
+            const rightLine = document.createElement("div");
+            rightLine.style.position = "absolute";
+            rightLine.style.width = lineLength + "px";
+            rightLine.style.height = thickness + "px";
+            rightLine.style.backgroundColor = "currentColor";
+            rightLine.style.right = "0";
+            rightLine.style.top = "50%";
+            rightLine.style.transform = "translateY(-50%)";
+            crosshairElement.appendChild(rightLine);
+            break;
+
+          case "t-shape":
+            // Horizontal line
+            const tHorizontal = document.createElement("div");
+            tHorizontal.style.position = "absolute";
+            tHorizontal.style.width = centerSize + "px";
+            tHorizontal.style.height = thickness + "px";
+            tHorizontal.style.backgroundColor = "currentColor";
+            tHorizontal.style.top = "50%";
+            tHorizontal.style.left = "50%";
+            tHorizontal.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(tHorizontal);
+
+            // Vertical line (only downward)
+            const tVertical = document.createElement("div");
+            tVertical.style.position = "absolute";
+            tVertical.style.width = thickness + "px";
+            tVertical.style.height = lineLength + "px";
+            tVertical.style.backgroundColor = "currentColor";
+            tVertical.style.bottom = "0";
+            tVertical.style.left = "50%";
+            tVertical.style.transform = "translateX(-50%)";
+            crosshairElement.appendChild(tVertical);
+            break;
+
+          case "x-shape":
+            // Diagonal lines
+            const diagonal1 = document.createElement("div");
+            diagonal1.style.position = "absolute";
+            diagonal1.style.width = Math.sqrt(2) * centerSize + "px";
+            diagonal1.style.height = thickness + "px";
+            diagonal1.style.backgroundColor = "currentColor";
+            diagonal1.style.top = "50%";
+            diagonal1.style.left = "50%";
+            diagonal1.style.transform = "translate(-50%, -50%) rotate(45deg)";
+            crosshairElement.appendChild(diagonal1);
+
+            const diagonal2 = document.createElement("div");
+            diagonal2.style.position = "absolute";
+            diagonal2.style.width = Math.sqrt(2) * centerSize + "px";
+            diagonal2.style.height = thickness + "px";
+            diagonal2.style.backgroundColor = "currentColor";
+            diagonal2.style.top = "50%";
+            diagonal2.style.left = "50%";
+            diagonal2.style.transform = "translate(-50%, -50%) rotate(-45deg)";
+            crosshairElement.appendChild(diagonal2);
+            break;
+
+          case "outline":
+            // Center dot
+            const outlineDot = document.createElement("div");
+            outlineDot.style.width = "4px";
+            outlineDot.style.height = "4px";
+            outlineDot.style.borderRadius = "50%";
+            outlineDot.style.backgroundColor = "currentColor";
+            outlineDot.style.position = "absolute";
+            outlineDot.style.top = "50%";
+            outlineDot.style.left = "50%";
+            outlineDot.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(outlineDot);
+
+            // Outline circle
+            const outlineCircle = document.createElement("div");
+            outlineCircle.style.width = size + "px";
+            outlineCircle.style.height = size + "px";
+            outlineCircle.style.borderRadius = "50%";
+            outlineCircle.style.border = thickness + "px solid currentColor";
+            outlineCircle.style.backgroundColor = "transparent";
+            outlineCircle.style.position = "absolute";
+            outlineCircle.style.top = "50%";
+            outlineCircle.style.left = "50%";
+            outlineCircle.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(outlineCircle);
+            break;
+
+          case "diamond":
+            const diamond = document.createElement("div");
+            diamond.style.width = size + "px";
+            diamond.style.height = size + "px";
+            diamond.style.border = thickness + "px solid currentColor";
+            diamond.style.backgroundColor = "transparent";
+            diamond.style.transform = "rotate(45deg)";
+            crosshairElement.appendChild(diamond);
+            break;
+
+          case "square":
+          case "hollow-square":
+            const square = document.createElement("div");
+            square.style.width = size + "px";
+            square.style.height = size + "px";
+            square.style.border = thickness + "px solid currentColor";
+            square.style.backgroundColor = "transparent";
+            crosshairElement.appendChild(square);
+            break;
+
+          case "triangle":
+            const triangle = document.createElement("div");
+            triangle.style.width = "0";
+            triangle.style.height = "0";
+            triangle.style.borderLeft = (size / 2) + "px solid transparent";
+            triangle.style.borderRight = (size / 2) + "px solid transparent";
+            triangle.style.borderBottom = size + "px solid currentColor";
+            crosshairElement.appendChild(triangle);
+            break;
+
+          case "lines-only":
+            // Four separate lines with gaps
+            const directions = [
+              { x: 0, y: -lineLength, w: thickness, h: lineLength },
+              { x: 0, y: halfGap, w: thickness, h: lineLength },
+              { x: -lineLength, y: 0, w: lineLength, h: thickness },
+              { x: halfGap, y: 0, w: lineLength, h: thickness }
+            ];
+
+            directions.forEach(dir => {
+              const line = document.createElement("div");
+              line.style.position = "absolute";
+              line.style.width = dir.w + "px";
+              line.style.height = dir.h + "px";
+              line.style.backgroundColor = "currentColor";
+              line.style.left = "50%";
+              line.style.top = "50%";
+              line.style.transform = `translate(${dir.x - dir.w/2}px, ${dir.y - dir.h/2}px)`;
+              crosshairElement.appendChild(line);
+            });
+            break;
+
+          case "triple-dot":
+            // Three dots in a line
+            for (let i = 0; i < 3; i++) {
+              const dot = document.createElement("div");
+              dot.style.width = (size / 4) + "px";
+              dot.style.height = (size / 4) + "px";
+              dot.style.borderRadius = "50%";
+              dot.style.backgroundColor = "currentColor";
+              dot.style.position = "absolute";
+              dot.style.left = "50%";
+              dot.style.top = "50%";
+              const offset = (i - 1) * gap;
+              dot.style.transform = `translate(calc(-50% + ${offset}px), -50%)`;
+              crosshairElement.appendChild(dot);
+            }
+            break;
+
+          case "reticle":
+            // Sniper-style reticle with graduated lines
+            const reticleLines = [
+              { x: 0, y: -size/2, w: thickness, h: size/4 },
+              { x: 0, y: gap, w: thickness, h: size/4 },
+              { x: -size/2, y: 0, w: size/4, h: thickness },
+              { x: gap, y: 0, w: size/4, h: thickness }
+            ];
+
+            reticleLines.forEach(line => {
+              const element = document.createElement("div");
+              element.style.position = "absolute";
+              element.style.width = line.w + "px";
+              element.style.height = line.h + "px";
+              element.style.backgroundColor = "currentColor";
+              element.style.left = "50%";
+              element.style.top = "50%";
+              element.style.transform = `translate(${line.x - line.w/2}px, ${line.y - line.h/2}px)`;
+              crosshairElement.appendChild(element);
+            });
+            break;
+
+          case "double-cross":
+            // Main cross
+            const dcHLine = document.createElement("div");
+            dcHLine.style.position = "absolute";
+            dcHLine.style.width = centerSize + "px";
+            dcHLine.style.height = thickness + "px";
+            dcHLine.style.backgroundColor = "currentColor";
+            dcHLine.style.top = "50%";
+            dcHLine.style.left = "50%";
+            dcHLine.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(dcHLine);
+
+            const dcVLine = document.createElement("div");
+            dcVLine.style.position = "absolute";
+            dcVLine.style.width = thickness + "px";
+            dcVLine.style.height = centerSize + "px";
+            dcVLine.style.backgroundColor = "currentColor";
+            dcVLine.style.top = "50%";
+            dcVLine.style.left = "50%";
+            dcVLine.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(dcVLine);
+
+            // Secondary cross (smaller)
+            const dcHLine2 = document.createElement("div");
+            dcHLine2.style.position = "absolute";
+            dcHLine2.style.width = (centerSize * 0.6) + "px";
+            dcHLine2.style.height = (thickness / 2) + "px";
+            dcHLine2.style.backgroundColor = "currentColor";
+            dcHLine2.style.top = "50%";
+            dcHLine2.style.left = "50%";
+            dcHLine2.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(dcHLine2);
+
+            const dcVLine2 = document.createElement("div");
+            dcVLine2.style.position = "absolute";
+            dcVLine2.style.width = (thickness / 2) + "px";
+            dcVLine2.style.height = (centerSize * 0.6) + "px";
+            dcVLine2.style.backgroundColor = "currentColor";
+            dcVLine2.style.top = "50%";
+            dcVLine2.style.left = "50%";
+            dcVLine2.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(dcVLine2);
+            break;
+
+          case "brackets":
+            // Corner brackets
+            const bracketSize = size / 3;
+            const bracketPositions = [
+              { x: -size/2, y: -size/2 }, // Top-left
+              { x: size/2 - bracketSize, y: -size/2 }, // Top-right
+              { x: -size/2, y: size/2 - bracketSize }, // Bottom-left
+              { x: size/2 - bracketSize, y: size/2 - bracketSize } // Bottom-right
+            ];
+
+            bracketPositions.forEach((pos, i) => {
+              // Horizontal part of bracket
+              const hBracket = document.createElement("div");
+              hBracket.style.position = "absolute";
+              hBracket.style.width = bracketSize + "px";
+              hBracket.style.height = thickness + "px";
+              hBracket.style.backgroundColor = "currentColor";
+              hBracket.style.left = "50%";
+              hBracket.style.top = "50%";
+              hBracket.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+              crosshairElement.appendChild(hBracket);
+
+              // Vertical part of bracket
+              const vBracket = document.createElement("div");
+              vBracket.style.position = "absolute";
+              vBracket.style.width = thickness + "px";
+              vBracket.style.height = bracketSize + "px";
+              vBracket.style.backgroundColor = "currentColor";
+              vBracket.style.left = "50%";
+              vBracket.style.top = "50%";
+              vBracket.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+              crosshairElement.appendChild(vBracket);
+            });
+            break;
+
+          case "star":
+            // 8-point star
+            for (let i = 0; i < 8; i++) {
+              const angle = (i * 45) * Math.PI / 180;
+              const lineLength2 = size / 3;
+              const startX = Math.cos(angle) * (size / 6);
+              const startY = Math.sin(angle) * (size / 6);
+              const endX = Math.cos(angle) * (size / 2);
+              const endY = Math.sin(angle) * (size / 2);
+
+              const line = document.createElement("div");
+              line.style.position = "absolute";
+              line.style.width = lineLength2 + "px";
+              line.style.height = thickness + "px";
+              line.style.backgroundColor = "currentColor";
+              line.style.left = "50%";
+              line.style.top = "50%";
+              line.style.transformOrigin = "left center";
+              line.style.transform = `translate(${startX}px, ${startY}px) rotate(${i * 45}deg)`;
+              crosshairElement.appendChild(line);
+            }
+            break;
+
+          case "arrow":
+            // Arrow pointing up
+            const arrowHead = document.createElement("div");
+            arrowHead.style.width = "0";
+            arrowHead.style.height = "0";
+            arrowHead.style.borderLeft = (size / 3) + "px solid transparent";
+            arrowHead.style.borderRight = (size / 3) + "px solid transparent";
+            arrowHead.style.borderBottom = (size / 2) + "px solid currentColor";
+            arrowHead.style.position = "absolute";
+            arrowHead.style.top = "0";
+            arrowHead.style.left = "50%";
+            arrowHead.style.transform = "translateX(-50%)";
+            crosshairElement.appendChild(arrowHead);
+
+            const arrowBody = document.createElement("div");
+            arrowBody.style.position = "absolute";
+            arrowBody.style.width = thickness + "px";
+            arrowBody.style.height = (size / 2) + "px";
+            arrowBody.style.backgroundColor = "currentColor";
+            arrowBody.style.bottom = "0";
+            arrowBody.style.left = "50%";
+            arrowBody.style.transform = "translateX(-50%)";
+            crosshairElement.appendChild(arrowBody);
+            break;
+
+          case "pixel-cross":
+            // Pixelated cross
+            const pixelSize = Math.max(2, thickness);
+            const pixels = [
+              { x: 0, y: -size/2 }, { x: 0, y: -size/3 }, { x: 0, y: -pixelSize },
+              { x: 0, y: pixelSize }, { x: 0, y: size/3 }, { x: 0, y: size/2 },
+              { x: -size/2, y: 0 }, { x: -size/3, y: 0 }, { x: -pixelSize, y: 0 },
+              { x: pixelSize, y: 0 }, { x: size/3, y: 0 }, { x: size/2, y: 0 }
+            ];
+
+            pixels.forEach(pixel => {
+              const pixelElement = document.createElement("div");
+              pixelElement.style.position = "absolute";
+              pixelElement.style.width = pixelSize + "px";
+              pixelElement.style.height = pixelSize + "px";
+              pixelElement.style.backgroundColor = "currentColor";
+              pixelElement.style.left = "50%";
+              pixelElement.style.top = "50%";
+              pixelElement.style.transform = `translate(${pixel.x - pixelSize/2}px, ${pixel.y - pixelSize/2}px)`;
+              crosshairElement.appendChild(pixelElement);
+            });
+            break;
+
+          case "hexagon":
+            // Create hexagon using CSS clip-path or approximation with rotated rectangles
+            const hexagon = document.createElement("div");
+            hexagon.style.width = size + "px";
+            hexagon.style.height = size + "px";
+            hexagon.style.position = "absolute";
+            hexagon.style.top = "50%";
+            hexagon.style.left = "50%";
+            hexagon.style.transform = "translate(-50%, -50%)";
+            hexagon.style.clipPath = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
+            hexagon.style.border = thickness + "px solid currentColor";
+            hexagon.style.backgroundColor = "transparent";
+            crosshairElement.appendChild(hexagon);
+            break;
+
+          case "crossbow":
+            // Crossbow sight with center dot and outer lines
+            const cbDot = document.createElement("div");
+            cbDot.style.width = "3px";
+            cbDot.style.height = "3px";
+            cbDot.style.borderRadius = "50%";
+            cbDot.style.backgroundColor = "currentColor";
+            cbDot.style.position = "absolute";
+            cbDot.style.top = "50%";
+            cbDot.style.left = "50%";
+            cbDot.style.transform = "translate(-50%, -50%)";
+            crosshairElement.appendChild(cbDot);
+
+            // Outer lines
+            const cbLines = [
+              { x: 0, y: -size/2, w: thickness, h: size/4 },
+              { x: 0, y: size/4, w: thickness, h: size/4 },
+              { x: -size/2, y: 0, w: size/4, h: thickness },
+              { x: size/4, y: 0, w: size/4, h: thickness }
+            ];
+
+            cbLines.forEach(line => {
+              const element = document.createElement("div");
+              element.style.position = "absolute";
+              element.style.width = line.w + "px";
+              element.style.height = line.h + "px";
+              element.style.backgroundColor = "currentColor";
+              element.style.left = "50%";
+              element.style.top = "50%";
+              element.style.transform = `translate(${line.x - line.w/2}px, ${line.y - line.h/2}px)`;
+              crosshairElement.appendChild(element);
+            });
+            break;
+
+          case "heart":
+            // Simple heart shape using CSS
+            const heart = document.createElement("div");
+            heart.style.position = "relative";
+            heart.style.width = size + "px";
+            heart.style.height = size * 0.8 + "px";
+            heart.style.transform = "rotate(-45deg)";
+
+            const heartLeft = document.createElement("div");
+            heartLeft.style.width = size / 2 + "px";
+            heartLeft.style.height = size * 0.8 + "px";
+            heartLeft.style.backgroundColor = "currentColor";
+            heartLeft.style.borderRadius = (size / 2) + "px " + (size / 2) + "px 0 0";
+            heartLeft.style.position = "absolute";
+            heartLeft.style.left = "0";
+            heartLeft.style.transform = "rotate(-45deg) translateX(" + (size / 4) + "px)";
+
+            const heartRight = document.createElement("div");
+            heartRight.style.width = size / 2 + "px";
+            heartRight.style.height = size * 0.8 + "px";
+            heartRight.style.backgroundColor = "currentColor";
+            heartRight.style.borderRadius = (size / 2) + "px " + (size / 2) + "px 0 0";
+            heartRight.style.position = "absolute";
+            heartRight.style.right = "0";
+            heartRight.style.transform = "rotate(45deg) translateX(-" + (size / 4) + "px)";
+
+            heart.appendChild(heartLeft);
+            heart.appendChild(heartRight);
+            crosshairElement.appendChild(heart);
+            break;
+
+          case "radar":
+            // Radar sweep effect (simplified as radiating lines)
+            for (let i = 0; i < 6; i++) {
+              const angle = (i * 60) * Math.PI / 180;
+              const line = document.createElement("div");
+              line.style.position = "absolute";
+              line.style.width = size / 3 + "px";
+              line.style.height = thickness + "px";
+              line.style.backgroundColor = "currentColor";
+              line.style.left = "50%";
+              line.style.top = "50%";
+              line.style.transformOrigin = "left center";
+              line.style.transform = `translate(0px, -${thickness/2}px) rotate(${i * 60}deg)`;
+              crosshairElement.appendChild(line);
+            }
+            break;
+
+          case "chevron":
+            // Chevron pointing up
+            const chevronLeft = document.createElement("div");
+            chevronLeft.style.position = "absolute";
+            chevronLeft.style.width = size / 3 + "px";
+            chevronLeft.style.height = thickness + "px";
+            chevronLeft.style.backgroundColor = "currentColor";
+            chevronLeft.style.left = "50%";
+            chevronLeft.style.top = "50%";
+            chevronLeft.style.transformOrigin = "right center";
+            chevronLeft.style.transform = "translate(-50%, -50%) rotate(-45deg)";
+            crosshairElement.appendChild(chevronLeft);
+
+            const chevronRight = document.createElement("div");
+            chevronRight.style.position = "absolute";
+            chevronRight.style.width = size / 3 + "px";
+            chevronRight.style.height = thickness + "px";
+            chevronRight.style.backgroundColor = "currentColor";
+            chevronRight.style.left = "50%";
+            chevronRight.style.top = "50%";
+            chevronRight.style.transformOrigin = "left center";
+            chevronRight.style.transform = "translate(-50%, -50%) rotate(45deg)";
+            crosshairElement.appendChild(chevronRight);
+            break;
+
+          case "burst":
+            // Burst pattern (radiating lines)
+            for (let i = 0; i < 12; i++) {
+              const angle = (i * 30) * Math.PI / 180;
+              const lineLength3 = (i % 2 === 0) ? size / 2 : size / 3;
+              const line = document.createElement("div");
+              line.style.position = "absolute";
+              line.style.width = lineLength3 + "px";
+              line.style.height = thickness + "px";
+              line.style.backgroundColor = "currentColor";
+              line.style.left = "50%";
+              line.style.top = "50%";
+              line.style.transformOrigin = "left center";
+              line.style.transform = `translate(0px, -${thickness/2}px) rotate(${i * 30}deg)`;
+              crosshairElement.appendChild(line);
+            }
+            break;
+
+          case "grid":
+            // Grid pattern
+            const gridSpacing = gap || 10;
+            const gridLines = 5;
+
+            for (let i = -gridLines; i <= gridLines; i++) {
+              // Vertical lines
+              const vGridLine = document.createElement("div");
+              vGridLine.style.position = "absolute";
+              vGridLine.style.width = "1px";
+              vGridLine.style.height = size + "px";
+              vGridLine.style.backgroundColor = "currentColor";
+              vGridLine.style.left = "50%";
+              vGridLine.style.top = "50%";
+              vGridLine.style.transform = `translate(${i * gridSpacing - 0.5}px, -50%)`;
+              crosshairElement.appendChild(vGridLine);
+
+              // Horizontal lines
+              const hGridLine = document.createElement("div");
+              hGridLine.style.position = "absolute";
+              hGridLine.style.width = size + "px";
+              hGridLine.style.height = "1px";
+              hGridLine.style.backgroundColor = "currentColor";
+              hGridLine.style.left = "50%";
+              hGridLine.style.top = "50%";
+              hGridLine.style.transform = `translate(-50%, ${i * gridSpacing - 0.5}px)`;
+              crosshairElement.appendChild(hGridLine);
+            }
+            break;
+
+          default:
+            // Fallback to cross
+            renderCrosshair({ ...settings, style: "cross" });
+            break;
+        }
+      }
+
+      function showHotkeyIndicator() {
+        const indicator = document.getElementById("hotkey-indicator");
+        indicator.classList.add("show");
+        setTimeout(() => {
+          indicator.classList.remove("show");
+        }, 3000);
+      }
+
+      // Listen for crosshair updates
+      if (window.overlayAPI) {
+        window.overlayAPI.onUpdateCrosshair((settings) => {
+          currentSettings = settings;
+          renderCrosshair(settings);
+          showHotkeyIndicator();
+        });
+      }
+
+      // Show hotkey indicator on load
+      setTimeout(showHotkeyIndicator, 500);
+    </script>
+  </body>
+</html>

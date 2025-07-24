@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6c28d9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#61a6fa;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="crosshairGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00ffff;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle with gaming gradient -->
+  <circle cx="128" cy="128" r="120" fill="url(#bgGradient)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+  
+  <!-- Inner ring -->
+  <circle cx="128" cy="128" r="90" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  
+  <!-- Main crosshair design -->
+  <!-- Horizontal line -->
+  <rect x="64" y="122" width="128" height="12" fill="url(#crosshairGradient)" filter="url(#glow)" rx="2"/>
+  
+  <!-- Vertical line -->
+  <rect x="122" y="64" width="12" height="128" fill="url(#crosshairGradient)" filter="url(#glow)" rx="2"/>
+  
+  <!-- Center dot -->
+  <circle cx="128" cy="128" r="8" fill="#ffffff" filter="url(#glow)"/>
+  
+  <!-- Corner brackets for gaming aesthetic -->
+  <!-- Top-left -->
+  <path d="M 80 80 L 80 96 M 80 80 L 96 80" stroke="#00ffff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- Top-right -->
+  <path d="M 176 80 L 176 96 M 176 80 L 160 80" stroke="#00ffff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- Bottom-left -->
+  <path d="M 80 176 L 80 160 M 80 176 L 96 176" stroke="#00ffff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- Bottom-right -->
+  <path d="M 176 176 L 176 160 M 176 176 L 160 176" stroke="#00ffff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- Additional targeting elements -->
+  <circle cx="128" cy="128" r="50" fill="none" stroke="rgba(0,255,255,0.3)" stroke-width="1" stroke-dasharray="4,4"/>
+  
+  <!-- Gaming enhancement markers -->
+  <circle cx="128" cy="78" r="3" fill="#00ff00" opacity="0.7"/>
+  <circle cx="128" cy="178" r="3" fill="#00ff00" opacity="0.7"/>
+  <circle cx="78" cy="128" r="3" fill="#00ff00" opacity="0.7"/>
+  <circle cx="178" cy="128" r="3" fill="#00ff00" opacity="0.7"/>
+</svg>
