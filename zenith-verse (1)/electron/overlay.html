@@ -167,11 +167,15 @@
         let centerX = window.innerWidth / 2;
         let centerY = window.innerHeight / 2;
 
-        console.log('=== SIMPLIFIED CROSSHAIR POSITIONING ===');
+        console.log('=== DETAILED CROSSHAIR POSITIONING DEBUG ===');
         console.log('Overlay window size:', window.innerWidth, 'x', window.innerHeight);
+        console.log('Window screen position:', window.screenX, window.screenY);
         console.log('Calculated center:', centerX, centerY);
         console.log('User offsets:', offsetX, offsetY);
         console.log('Final position:', Math.round(centerX + offsetX), Math.round(centerY + offsetY));
+        console.log('Screen info - outerWidth:', window.outerWidth, 'outerHeight:', window.outerHeight);
+        console.log('Screen info - availWidth:', screen.availWidth, 'availHeight:', screen.availHeight);
+        console.log('Screen info - width:', screen.width, 'height:', screen.height);
 
         // Optional: Try to get precise center from API, but don't rely on it
         if (window.overlayAPI && window.overlayAPI.getPrimaryDisplayCenter) {
