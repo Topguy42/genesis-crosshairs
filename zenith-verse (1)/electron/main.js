@@ -202,6 +202,15 @@ function createOverlayWindow() {
   if (process.platform === 'win32') {
     // Windows: Use screen-saver level for highest priority
     overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+    // Force window to front immediately
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.setAlwaysOnTop(false);
+        overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+        overlayWindow.focus();
+        overlayWindow.blur(); // Remove focus to maintain click-through
+      }
+    }, 100);
   } else if (process.platform === 'darwin') {
     // macOS: Use floating level
     overlayWindow.setAlwaysOnTop(true, 'floating');
