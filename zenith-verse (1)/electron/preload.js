@@ -56,8 +56,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
 });
 
+console.log('electronAPI exposed to main world');
+
 // Platform detection
 contextBridge.exposeInMainWorld("platform", {
   isElectron: true,
   platform: process.platform,
 });
+
+console.log('Preload script completed successfully');
