@@ -21,18 +21,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   updateFloatingDialogPosition: (config) => ipcRenderer.invoke("update-floating-dialog-position", config),
 
   // Window controls for custom title bar
-  minimizeWindow: () => {
-    console.log('minimizeWindow called in preload');
-    return ipcRenderer.invoke("minimize-window");
-  },
-  maximizeWindow: () => {
-    console.log('maximizeWindow called in preload');
-    return ipcRenderer.invoke("maximize-window");
-  },
-  closeWindow: () => {
-    console.log('closeWindow called in preload');
-    return ipcRenderer.invoke("close-window");
-  },
+  minimizeWindow: () => ipcRenderer.invoke("minimize-window"),
+  maximizeWindow: () => ipcRenderer.invoke("maximize-window"),
+  closeWindow: () => ipcRenderer.invoke("close-window"),
   isWindowMaximized: () => ipcRenderer.invoke("is-window-maximized"),
 
   // Listen for window state changes
