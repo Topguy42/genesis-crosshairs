@@ -1678,6 +1678,11 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                 </div>
               </div>
               <div className="flex items-center space-x-2">
+                {!isElectron && (
+                  <div className="bg-gaming-orange/20 text-gaming-orange px-3 py-1 rounded-md text-xs font-medium border border-gaming-orange/30">
+                    Web Mode: Limited to browser window
+                  </div>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
