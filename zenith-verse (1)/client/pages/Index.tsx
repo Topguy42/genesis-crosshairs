@@ -1629,16 +1629,28 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
   return (
     <>
       {/* System Overlay Status Indicator */}
-      {isElectron && systemOverlayActive && (
+      {(systemOverlayActive || webPreviewActive) && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-gaming-green/90 text-white px-4 py-2 rounded-lg shadow-lg border border-gaming-green/50 backdrop-blur-sm">
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">System Overlay Active - Crosshair visible over all games & apps</span>
+            <span className="text-sm font-medium">
+              {isElectron
+                ? "System Overlay Active - Crosshair visible over all games & apps"
+                : "Web Preview Active - Crosshair visible in browser (Download desktop app for system-wide overlay)"
+              }
+            </span>
             <Monitor className="w-4 h-4" />
           </div>
-          <div className="mt-1 text-xs text-white/80">
-            💡 Dialog windows can be dragged anywhere on your desktop for multi-monitor setups
-          </div>
+          {isElectron && (
+            <div className="mt-1 text-xs text-white/80">
+              💡 Dialog windows can be dragged anywhere on your desktop for multi-monitor setups
+            </div>
+          )}
+          {!isElectron && (
+            <div className="mt-1 text-xs text-white/80">
+              💡 Press ESC to hide overlay • Download desktop app for full system overlay functionality
+            </div>
+          )}
         </div>
       )}
 
