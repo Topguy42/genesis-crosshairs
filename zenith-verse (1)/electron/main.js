@@ -201,17 +201,13 @@ function createOverlayWindow() {
   // Additional visibility settings for cross-platform support
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
-  console.log('Overlay window created with bounds:', {
-    x: minX,
-    y: minY,
-    width: totalWidth,
-    height: totalHeight,
+  console.log('Overlay window created with primary display bounds:', {
+    x: x,
+    y: y,
+    width: width,
+    height: height,
     platform: process.platform,
-    displays: displays.map(d => ({
-      id: d.id,
-      bounds: d.bounds,
-      primary: d === screen.getPrimaryDisplay()
-    }))
+    primary: true
   });
 
   // Load overlay HTML
