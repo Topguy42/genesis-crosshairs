@@ -32,7 +32,10 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
 
     // Check initial maximized state
     electronAPI.isWindowMaximized().then((maximized: boolean) => {
+      console.log('Initial maximized state:', maximized);
       setIsMaximized(maximized);
+    }).catch((error: any) => {
+      console.error('Failed to get initial maximized state:', error);
     });
 
     // Listen for window state changes
