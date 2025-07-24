@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CrosshairCard } from "@/components/ui/crosshair-card";
+import { Crosshair } from "@/components/ui/crosshair";
 
 import { AimTrainer } from "@/components/ui/aim-trainer";
 import { AimTrainer3D } from "@/components/ui/aim-trainer-3d";
@@ -2798,7 +2799,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                       }`} />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>�� Left</span>
+                      <span>← Left</span>
                       <span>Center</span>
                       <span>Right ��</span>
                     </div>
