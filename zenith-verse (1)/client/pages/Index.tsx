@@ -633,7 +633,7 @@ export default function Index() {
   const [showEditor, setShowEditor] = useState(false);
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
   const [editorPreviewMode, setEditorPreviewMode] = useState(false);
-  const [isElectron, setIsElectron] = useState(true);
+  const [isElectron, setIsElectron] = useState(false);
   const [systemOverlayActive, setSystemOverlayActive] = useState(false);
   const [showPositionSettings, setShowPositionSettings] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
