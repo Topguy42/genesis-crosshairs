@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CrosshairCard } from "@/components/ui/crosshair-card";
+import { Crosshair } from "@/components/ui/crosshair";
 
 import { AimTrainer } from "@/components/ui/aim-trainer";
 import { AimTrainer3D } from "@/components/ui/aim-trainer-3d";
@@ -42,7 +43,7 @@ import {
   Copy,
   Download,
   Settings,
-  Crosshair,
+  Crosshair as CrosshairIcon,
   Target,
   Zap,
   Eye,
@@ -376,7 +377,7 @@ const crosshairPresets = [
 
 const categories = [
   { id: "all", name: "All Crosshairs", icon: Target },
-  { id: "minimal", name: "Minimal", icon: Crosshair },
+  { id: "minimal", name: "Minimal", icon: CrosshairIcon },
   { id: "classic", name: "Classic", icon: Zap },
   { id: "modern", name: "Modern", icon: Settings },
   { id: "unique", name: "Unique", icon: Target },
@@ -1287,6 +1288,13 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
 
     if ((window as any).electronAPI) {
       console.log('electronAPI methods:', Object.keys((window as any).electronAPI));
+      // Test the API methods
+      console.log('Testing electronAPI methods...');
+      (window as any).electronAPI.getCrosshairSettings().then((settings: any) => {
+        console.log('Current crosshair settings from Electron:', settings);
+      }).catch((error: any) => {
+        console.error('Failed to get crosshair settings:', error);
+      });
     }
     console.log('=== END ELECTRON DEBUG ===');
 
@@ -1626,19 +1634,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
 
   return (
     <>
-      {/* System Overlay Status Indicator */}
-      {isElectron && systemOverlayActive && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-gaming-green/90 text-white px-4 py-2 rounded-lg shadow-lg border border-gaming-green/50 backdrop-blur-sm">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">System Overlay Active - Crosshair visible over all games & apps</span>
-            <Monitor className="w-4 h-4" />
-          </div>
-          <div className="mt-1 text-xs text-white/80">
-            💡 Dialog windows can be dragged anywhere on your desktop for multi-monitor setups
-          </div>
-        </div>
-      )}
+
 
 
 
@@ -1751,74 +1747,37 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                       </div>
 
                       <div className="space-y-2 pt-4 border-t">
-                        {isElectron && systemOverlayActive && (
-                          <div className="flex items-center justify-center space-x-2 py-2 px-3 bg-gaming-green/20 border border-gaming-green/30 rounded text-sm">
-                            <div className="w-2 h-2 bg-gaming-green rounded-full animate-pulse"></div>
-                            <span className="text-gaming-green font-medium">System Overlay Active</span>
-                          </div>
-                        )}
+
 
                         <SoundButton
                           onClick={async () => {
-                            console.log('=== USE/TAKE OFF BUTTON CLICKED ===');
-                            console.log('Current systemOverlayActive:', systemOverlayActive);
-                            console.log('isElectron:', isElectron);
-                            console.log('electronAPI available:', !!(window as any).electronAPI);
-                            console.log('selectedPreset:', selectedPreset);
+                            if (!selectedPreset) return;
 
-                            // For web testing - allow button text change even without Electron
-                            if (!isElectron || !(window as any).electronAPI) {
-                              console.warn('Electron API not available - crosshair overlay requires Electron environment');
-                              // Just toggle the button text for testing purposes
-                              setSystemOverlayActive(!systemOverlayActive);
-                              return;
-                            }
-
-                            if (systemOverlayActive) {
-                              // Hide system overlay (Take Off)
-                              try {
-                                console.log('Taking off crosshair overlay...');
-                                await (window as any).electronAPI.hideOverlay();
-                                console.log('hideOverlay API call completed');
-                                setSystemOverlayActive(false);
-                                console.log('systemOverlayActive set to false');
-                                console.log('Crosshair overlay removed successfully');
-                              } catch (error) {
-                                console.error('Failed to remove crosshair overlay:', error);
+                            if (isElectron && (window as any).electronAPI) {
+                              // Desktop app - Use separate Electron overlay window
+                              if (systemOverlayActive) {
+                                try {
+                                  await (window as any).electronAPI.hideOverlay();
+                                  setSystemOverlayActive(false);
+                                } catch (error) {
+                                  console.error('Failed to hide overlay:', error);
+                                }
+                              } else {
+                                try {
+                                  const currentCrosshair = getCurrentCrosshairSettings();
+                                  if (currentCrosshair) {
+                                    await (window as any).electronAPI.updateCrosshairSettings(currentCrosshair);
+                                    await (window as any).electronAPI.showOverlay();
+                                    setSystemOverlayActive(true);
+                                  }
+                                } catch (error) {
+                                  console.error('Failed to show overlay:', error);
+                                }
                               }
                             } else {
-                              // Show system overlay (Use)
-                              if (!selectedPreset) {
-                                console.warn('No crosshair selected');
-                                return;
-                              }
-
-                              try {
-                                console.log('Activating crosshair overlay...');
-                                const currentCrosshair = getCurrentCrosshairSettings();
-                                console.log('currentCrosshair settings:', currentCrosshair);
-
-                                if (currentCrosshair) {
-                                  console.log('Calling updateCrosshairSettings...');
-                                  await (window as any).electronAPI.updateCrosshairSettings(currentCrosshair);
-                                  console.log('updateCrosshairSettings completed');
-
-                                  console.log('Calling showOverlay...');
-                                  await (window as any).electronAPI.showOverlay();
-                                  console.log('showOverlay API call completed');
-
-                                  console.log('Setting systemOverlayActive to true...');
-                                  setSystemOverlayActive(true);
-                                  console.log('systemOverlayActive has been set to true');
-                                  console.log('Crosshair overlay should now be activated');
-                                } else {
-                                  console.error('Failed to get current crosshair settings');
-                                }
-                              } catch (error) {
-                                console.error('Failed to activate crosshair overlay:', error);
-                              }
+                              // Web browser - Use built-in React overlay
+                              setSystemOverlayActive(!systemOverlayActive);
                             }
-                            console.log('=== BUTTON CLICK HANDLER COMPLETE ===');
                           }}
                           className="w-full bg-gaming-purple hover:bg-gaming-purple/80"
                           size="sm"
@@ -4588,6 +4547,42 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
           </div>
         </footer>
       </div>
+
+      {/* Web Browser Crosshair Overlay (when not in Electron) */}
+      {systemOverlayActive && selectedPreset && !isElectron && (
+        <div
+          className="fixed inset-0 pointer-events-none z-[9999999]"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 2147483647, // Maximum z-index
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
+          <div
+            className="absolute top-1/2 left-1/2"
+            style={{
+              transform: `translate(-50%, -50%) translate(${positionSettings.offsetX}px, ${positionSettings.offsetY}px)`,
+            }}
+          >
+            <Crosshair
+              style={selectedPreset.style}
+              color={customizations[selectedPreset.id]?.color || selectedPreset.color}
+              size={customizations[selectedPreset.id]?.size || selectedPreset.size}
+              opacity={customizations[selectedPreset.id]?.opacity || selectedPreset.opacity}
+              thickness={customizations[selectedPreset.id]?.thickness || selectedPreset.thickness || 2}
+              gap={customizations[selectedPreset.id]?.gap || selectedPreset.gap || 0}
+              offsetX={positionSettings.offsetX}
+              offsetY={positionSettings.offsetY}
+              imageUrl={(selectedPreset as any).imageUrl}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }
