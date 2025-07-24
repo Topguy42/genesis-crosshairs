@@ -49,98 +49,20 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
   }, [inElectron]);
 
   const handleMinimize = () => {
-    console.log('=== MINIMIZE BUTTON CLICKED ===');
-
-    try {
-      // Try the main electronAPI first
-      if ((window as any).electronAPI?.minimizeWindow) {
-        console.log('Using electronAPI.minimizeWindow');
-        (window as any).electronAPI.minimizeWindow();
-        return;
-      }
-
-      // Try the simpler windowControls API as fallback
-      if ((window as any).windowControls?.minimize) {
-        console.log('Using windowControls.minimize');
-        (window as any).windowControls.minimize();
-        return;
-      }
-
-      // Direct IPC as last resort
-      if ((window as any).require) {
-        console.log('Using direct IPC');
-        const { ipcRenderer } = (window as any).require('electron');
-        ipcRenderer.send('window-minimize');
-        return;
-      }
-
-      console.error('No window control method available');
-    } catch (error) {
-      console.error('Error calling minimize:', error);
+    if ((window as any).electronAPI) {
+      (window as any).electronAPI.minimizeWindow();
     }
   };
 
   const handleMaximize = () => {
-    console.log('=== MAXIMIZE BUTTON CLICKED ===');
-
-    try {
-      // Try the main electronAPI first
-      if ((window as any).electronAPI?.maximizeWindow) {
-        console.log('Using electronAPI.maximizeWindow');
-        (window as any).electronAPI.maximizeWindow();
-        return;
-      }
-
-      // Try the simpler windowControls API as fallback
-      if ((window as any).windowControls?.maximize) {
-        console.log('Using windowControls.maximize');
-        (window as any).windowControls.maximize();
-        return;
-      }
-
-      // Direct IPC as last resort
-      if ((window as any).require) {
-        console.log('Using direct IPC');
-        const { ipcRenderer } = (window as any).require('electron');
-        ipcRenderer.send('window-maximize');
-        return;
-      }
-
-      console.error('No window control method available');
-    } catch (error) {
-      console.error('Error calling maximize:', error);
+    if ((window as any).electronAPI) {
+      (window as any).electronAPI.maximizeWindow();
     }
   };
 
   const handleClose = () => {
-    console.log('=== CLOSE BUTTON CLICKED ===');
-
-    try {
-      // Try the main electronAPI first
-      if ((window as any).electronAPI?.closeWindow) {
-        console.log('Using electronAPI.closeWindow');
-        (window as any).electronAPI.closeWindow();
-        return;
-      }
-
-      // Try the simpler windowControls API as fallback
-      if ((window as any).windowControls?.close) {
-        console.log('Using windowControls.close');
-        (window as any).windowControls.close();
-        return;
-      }
-
-      // Direct IPC as last resort
-      if ((window as any).require) {
-        console.log('Using direct IPC');
-        const { ipcRenderer } = (window as any).require('electron');
-        ipcRenderer.send('window-close');
-        return;
-      }
-
-      console.error('No window control method available');
-    } catch (error) {
-      console.error('Error calling close:', error);
+    if ((window as any).electronAPI) {
+      (window as any).electronAPI.closeWindow();
     }
   };
 
