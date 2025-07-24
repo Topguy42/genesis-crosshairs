@@ -672,78 +672,27 @@ ipcMain.handle("update-floating-dialog-position", (event, { id, x, y }) => {
 
 // Window control handlers for custom title bar
 ipcMain.handle("minimize-window", () => {
-  console.log('minimize-window IPC handler called');
   if (mainWindow) {
-    console.log('Minimizing main window');
     mainWindow.minimize();
-  } else {
-    console.log('No main window available to minimize');
   }
 });
 
 ipcMain.handle("maximize-window", () => {
-  console.log('maximize-window IPC handler called');
   if (mainWindow) {
     if (mainWindow.isMaximized()) {
-      console.log('Unmaximizing main window');
       mainWindow.unmaximize();
     } else {
-      console.log('Maximizing main window');
       mainWindow.maximize();
     }
-  } else {
-    console.log('No main window available to maximize');
   }
 });
 
 ipcMain.handle("close-window", () => {
-  console.log('close-window IPC handler called');
   if (mainWindow) {
-    console.log('Closing main window');
     mainWindow.close();
-  } else {
-    console.log('No main window available to close');
   }
 });
 
 ipcMain.handle("is-window-maximized", () => {
-  const isMaximized = mainWindow ? mainWindow.isMaximized() : false;
-  console.log('is-window-maximized called, result:', isMaximized);
-  return isMaximized;
-});
-
-// Alternative simpler IPC handlers using send/sendSync
-ipcMain.on("window-minimize", () => {
-  console.log('window-minimize IPC (send) handler called');
-  if (mainWindow) {
-    console.log('Minimizing main window via send');
-    mainWindow.minimize();
-  }
-});
-
-ipcMain.on("window-maximize", () => {
-  console.log('window-maximize IPC (send) handler called');
-  if (mainWindow) {
-    if (mainWindow.isMaximized()) {
-      console.log('Unmaximizing main window via send');
-      mainWindow.unmaximize();
-    } else {
-      console.log('Maximizing main window via send');
-      mainWindow.maximize();
-    }
-  }
-});
-
-ipcMain.on("window-close", () => {
-  console.log('window-close IPC (send) handler called');
-  if (mainWindow) {
-    console.log('Closing main window via send');
-    mainWindow.close();
-  }
-});
-
-ipcMain.on("window-is-maximized", (event) => {
-  const isMaximized = mainWindow ? mainWindow.isMaximized() : false;
-  console.log('window-is-maximized (sendSync) called, result:', isMaximized);
-  event.returnValue = isMaximized;
+  return mainWindow ? mainWindow.isMaximized() : false;
 });
