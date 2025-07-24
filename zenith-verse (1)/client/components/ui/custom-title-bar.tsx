@@ -135,55 +135,88 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
       {/* Right side - Window controls */}
       <div className="flex items-center h-full border-l border-border/20">
         {/* Minimize */}
-        <button
-          onClick={handleMinimize}
+        <div
+          onMouseDown={handleMinimize}
           className={cn(
-            "h-full w-12 flex items-center justify-center group",
-            "hover:bg-yellow-500/20 hover:text-yellow-500 transition-all duration-150",
+            "h-full w-12 flex items-center justify-center group cursor-pointer",
+            "hover:bg-yellow-500/20 transition-all duration-150",
             "text-foreground/70 hover:text-yellow-500",
             "border-r border-border/10"
           )}
-          style={{ WebkitAppRegion: 'no-drag' as any }}
+          style={{
+            WebkitAppRegion: 'no-drag' as any,
+            userSelect: 'none'
+          }}
+          role="button"
+          tabIndex={0}
           aria-label="Minimize"
           title="Minimize (Ctrl+M)"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleMinimize(e as any);
+            }
+          }}
         >
           <Minus className="w-4 h-4" />
-        </button>
+        </div>
 
         {/* Maximize/Restore */}
-        <button
-          onClick={handleMaximize}
+        <div
+          onMouseDown={handleMaximize}
           className={cn(
-            "h-full w-12 flex items-center justify-center group",
-            "hover:bg-green-500/20 hover:text-green-500 transition-all duration-150",
+            "h-full w-12 flex items-center justify-center group cursor-pointer",
+            "hover:bg-green-500/20 transition-all duration-150",
             "text-foreground/70 hover:text-green-500",
             "border-r border-border/10"
           )}
-          style={{ WebkitAppRegion: 'no-drag' as any }}
+          style={{
+            WebkitAppRegion: 'no-drag' as any,
+            userSelect: 'none'
+          }}
+          role="button"
+          tabIndex={0}
           aria-label={isMaximized ? "Restore" : "Maximize"}
           title={isMaximized ? "Restore (F11 for fullscreen)" : "Maximize (F11 for fullscreen)"}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleMaximize(e as any);
+            }
+          }}
         >
           {isMaximized ? (
             <Copy className="w-4 h-4" />
           ) : (
             <Square className="w-4 h-4" />
           )}
-        </button>
+        </div>
 
         {/* Close */}
-        <button
-          onClick={handleClose}
+        <div
+          onMouseDown={handleClose}
           className={cn(
-            "h-full w-12 flex items-center justify-center group",
+            "h-full w-12 flex items-center justify-center group cursor-pointer",
             "hover:bg-red-500 hover:text-white transition-all duration-150",
             "text-foreground/70"
           )}
-          style={{ WebkitAppRegion: 'no-drag' as any }}
+          style={{
+            WebkitAppRegion: 'no-drag' as any,
+            userSelect: 'none'
+          }}
+          role="button"
+          tabIndex={0}
           aria-label="Close"
           title="Close"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleClose(e as any);
+            }
+          }}
         >
           <X className="w-4 h-4" />
-        </button>
+        </div>
       </div>
     </div>
   );
