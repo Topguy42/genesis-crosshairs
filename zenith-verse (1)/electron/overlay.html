@@ -124,7 +124,7 @@
         crosshairElement.style.height = size + "px";
 
         // Apply position offset - center on primary display regardless of multi-monitor setup
-        // Get primary screen center from the overlay API
+        // Start with fallback (overlay window center)
         let centerX = window.innerWidth / 2;
         let centerY = window.innerHeight / 2;
 
@@ -133,20 +133,26 @@
           try {
             const primaryCenter = window.overlayAPI.getPrimaryDisplayCenter();
             if (primaryCenter && primaryCenter.x !== undefined && primaryCenter.y !== undefined) {
+              // Use the calculated primary display center
               centerX = primaryCenter.x;
               centerY = primaryCenter.y;
-              console.log('Using primary display center:', primaryCenter);
+
+              console.log('Primary display center info:', primaryCenter);
               console.log('Overlay window size:', window.innerWidth, 'x', window.innerHeight);
-              console.log('Final crosshair position:', centerX + offsetX, centerY + offsetY);
+              console.log('Using center coordinates:', centerX, centerY);
+              console.log('With offsets:', offsetX, offsetY);
+              console.log('Final crosshair position:', Math.round(centerX + offsetX), Math.round(centerY + offsetY));
             } else {
-              console.log('Primary display center not available, using fallback');
+              console.warn('Invalid primary display center data:', primaryCenter);
+              console.log('Using fallback overlay center:', centerX, centerY);
             }
           } catch (error) {
-            console.warn('Failed to get primary display center:', error);
-            console.log('Using fallback center calculation');
+            console.error('Failed to get primary display center:', error);
+            console.log('Using fallback overlay center:', centerX, centerY);
           }
         } else {
-          console.log('Overlay API not available for primary display center');
+          console.warn('Overlay API not available for primary display center');
+          console.log('Using fallback overlay center:', centerX, centerY);
         }
 
         crosshairElement.style.top = `${centerY + offsetY}px`;
