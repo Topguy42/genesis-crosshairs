@@ -1786,6 +1786,11 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                                 console.log('Crosshair overlay removed successfully');
                               } catch (error) {
                                 console.error('Failed to remove crosshair overlay:', error);
+                                toast({
+                                  title: "Overlay Error",
+                                  description: `Failed to remove system overlay: ${error.message || 'Unknown error'}`,
+                                  variant: "destructive",
+                                });
                               }
                             } else {
                               // Show system overlay (Use)
