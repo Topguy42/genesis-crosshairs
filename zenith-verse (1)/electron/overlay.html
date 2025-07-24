@@ -116,11 +116,14 @@
               centerX = primaryCenter.x;
               centerY = primaryCenter.y;
               console.log('Using primary display center:', primaryCenter);
+              console.log('Overlay window size:', window.innerWidth, 'x', window.innerHeight);
+              console.log('Final crosshair position:', centerX + offsetX, centerY + offsetY);
             } else {
               console.log('Primary display center not available, using fallback');
             }
           } catch (error) {
             console.warn('Failed to get primary display center:', error);
+            console.log('Using fallback center calculation');
           }
         } else {
           console.log('Overlay API not available for primary display center');
