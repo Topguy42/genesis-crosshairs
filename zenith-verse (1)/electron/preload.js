@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   minimizeToTray: () => ipcRenderer.invoke("minimize-to-tray"),
   forceOverlayTop: () => ipcRenderer.invoke("force-overlay-top"),
   refreshOverlay: () => ipcRenderer.invoke("refresh-overlay"),
+  forceOverlayRefresh: () => ipcRenderer.invoke("force-overlay-refresh"),
 
   // Desktop-wide dragging support
   enableDesktopDragging: () => ipcRenderer.invoke("enable-desktop-dragging"),
