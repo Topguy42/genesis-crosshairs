@@ -183,12 +183,15 @@ function createOverlayWindow() {
     disableAutoHideCursor: true,
     backgroundColor: '#00000000', // Fully transparent
     roundedCorners: false,
+    parent: null, // Ensure this is not a child window of main window
+    modal: false, // Not modal to main window
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "overlay-preload.js"),
       backgroundThrottling: false, // Prevent throttling when app is not focused
       offscreen: false,
+      webSecurity: false, // Allow cross-origin for overlay functionality
     },
   });
 
