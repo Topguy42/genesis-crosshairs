@@ -1795,8 +1795,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                                 }
                               }
                             } else {
-                              // Web browser - Use full-screen web overlay
-                              setWebOverlayActive(!webOverlayActive);
+                              console.warn('Desktop app required for overlay functionality');
                             }
                           }}
                           className="w-full bg-gaming-purple hover:bg-gaming-purple/80"
