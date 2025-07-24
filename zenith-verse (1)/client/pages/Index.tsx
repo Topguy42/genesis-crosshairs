@@ -1655,6 +1655,48 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
 
   return (
     <>
+      {/* Preview Overlay for Browser Testing */}
+      {previewOverlayActive && selectedPreset && (
+        <div
+          className="fixed inset-0 z-50 bg-black/20 flex items-center justify-center"
+          onClick={() => setPreviewOverlayActive(false)}
+        >
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              transform: `translate(${positionSettings.offsetX || 0}px, ${positionSettings.offsetY || 0}px)`,
+            }}
+          >
+            <Crosshair
+              style={selectedPreset.style as any}
+              color={customizations[selectedPreset.id]?.color || selectedPreset.color}
+              size={customizations[selectedPreset.id]?.size || selectedPreset.size}
+              opacity={customizations[selectedPreset.id]?.opacity || selectedPreset.opacity}
+              thickness={customizations[selectedPreset.id]?.thickness || selectedPreset.thickness}
+              gap={customizations[selectedPreset.id]?.gap || selectedPreset.gap}
+            />
+          </div>
+          <div className="absolute top-4 right-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewOverlayActive(false);
+              }}
+              className="bg-black/50 text-white border-white/20 hover:bg-black/70"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-lg text-sm">
+            <div className="text-center">
+              <div className="font-medium">Preview Mode</div>
+              <div className="text-xs opacity-80">This is how your crosshair will look in the desktop app</div>
+            </div>
+          </div>
+        </div>
+      )}
 
 
 
