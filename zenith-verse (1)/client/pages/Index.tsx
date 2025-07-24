@@ -1646,7 +1646,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
           )}
           {!isElectron && (
             <div className="mt-1 text-xs text-white/80">
-              ���� Press ESC to hide overlay • Download desktop app for full system overlay functionality
+              💡 Press ESC to hide overlay • Download desktop app for full system overlay functionality
             </div>
           )}
         </div>
@@ -1780,10 +1780,10 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                             console.log('electronAPI available:', !!(window as any).electronAPI);
                             console.log('selectedPreset:', selectedPreset);
 
-                            // For web testing - use browser overlay when Electron is not available
+                            // Desktop app only - Electron is required for system overlay
                             if (!isElectron || !(window as any).electronAPI) {
-                              console.log('Using web preview mode for crosshair overlay');
-                              setWebPreviewActive(!webPreviewActive);
+                              console.warn('Desktop app required - System overlay only works in Electron environment');
+                              alert('System overlay requires the desktop app. This is a desktop-only feature.');
                               return;
                             }
 
@@ -2881,7 +2881,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                       }`} />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>��� Up</span>
+                      <span>↑ Up</span>
                       <span>Center</span>
                       <span>Down ↓</span>
                     </div>
