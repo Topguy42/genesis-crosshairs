@@ -1809,7 +1809,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                           <Eye className="w-4 h-4 mr-2" />
                           {(systemOverlayActive || webOverlayActive)
                             ? "Take Off"
-                            : "Use"
+                            : isElectron ? "Use" : "Use (Web Mode)"
                           }
                         </SoundButton>
                         <SoundButton
