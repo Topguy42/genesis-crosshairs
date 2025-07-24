@@ -174,6 +174,10 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
                 }
               }}
               className="text-xs bg-blue-500 px-2 py-1 rounded"
+              style={{
+                WebkitAppRegion: 'no-drag' as any,
+                userSelect: 'none'
+              }}
             >
               Test API
             </button>
