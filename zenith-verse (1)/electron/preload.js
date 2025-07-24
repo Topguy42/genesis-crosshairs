@@ -20,11 +20,45 @@ contextBridge.exposeInMainWorld("electronAPI", {
   closeFloatingDialog: (id) => ipcRenderer.invoke("close-floating-dialog", id),
   updateFloatingDialogPosition: (config) => ipcRenderer.invoke("update-floating-dialog-position", config),
 
-  // Window controls for custom title bar
-  minimizeWindow: () => ipcRenderer.invoke("minimize-window"),
-  maximizeWindow: () => ipcRenderer.invoke("maximize-window"),
-  closeWindow: () => ipcRenderer.invoke("close-window"),
-  isWindowMaximized: () => ipcRenderer.invoke("is-window-maximized"),
+  // Native Windows-style window controls
+  minimizeWindow: async () => {
+    try {
+      const result = await ipcRenderer.invoke("minimize-window");
+      console.log('Minimize result:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to minimize:', error);
+      return false;
+    }
+  },
+  maximizeWindow: async () => {
+    try {
+      const result = await ipcRenderer.invoke("maximize-window");
+      console.log('Maximize result:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to maximize:', error);
+      return false;
+    }
+  },
+  closeWindow: async () => {
+    try {
+      const result = await ipcRenderer.invoke("close-window");
+      console.log('Close result:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to close:', error);
+      return false;
+    }
+  },
+  isWindowMaximized: async () => {
+    try {
+      return await ipcRenderer.invoke("is-window-maximized");
+    } catch (error) {
+      console.error('Failed to get maximized state:', error);
+      return false;
+    }
+  },
 
   // Listen for window state changes
   onWindowMaximized: (callback) => {
