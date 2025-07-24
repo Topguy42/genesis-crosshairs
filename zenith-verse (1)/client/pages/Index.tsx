@@ -65,7 +65,6 @@ import {
   Code,
   Layers3,
   Hammer,
-  X,
 } from "lucide-react";
 
 const crosshairPresets = [
