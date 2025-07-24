@@ -41,8 +41,9 @@ function createMainWindow() {
     titleBarStyle: 'hidden', // Hide title bar on macOS
     trafficLightPosition: { x: 20, y: 20 }, // Position macOS controls
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false,
       preload: path.join(__dirname, "preload.js"),
     },
     icon: path.join(__dirname, "../public/icon.png"),
