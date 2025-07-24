@@ -672,27 +672,42 @@ ipcMain.handle("update-floating-dialog-position", (event, { id, x, y }) => {
 
 // Window control handlers for custom title bar
 ipcMain.handle("minimize-window", () => {
+  console.log('minimize-window IPC handler called');
   if (mainWindow) {
+    console.log('Minimizing main window');
     mainWindow.minimize();
+  } else {
+    console.log('No main window available to minimize');
   }
 });
 
 ipcMain.handle("maximize-window", () => {
+  console.log('maximize-window IPC handler called');
   if (mainWindow) {
     if (mainWindow.isMaximized()) {
+      console.log('Unmaximizing main window');
       mainWindow.unmaximize();
     } else {
+      console.log('Maximizing main window');
       mainWindow.maximize();
     }
+  } else {
+    console.log('No main window available to maximize');
   }
 });
 
 ipcMain.handle("close-window", () => {
+  console.log('close-window IPC handler called');
   if (mainWindow) {
+    console.log('Closing main window');
     mainWindow.close();
+  } else {
+    console.log('No main window available to close');
   }
 });
 
 ipcMain.handle("is-window-maximized", () => {
-  return mainWindow ? mainWindow.isMaximized() : false;
+  const isMaximized = mainWindow ? mainWindow.isMaximized() : false;
+  console.log('is-window-maximized called, result:', isMaximized);
+  return isMaximized;
 });
