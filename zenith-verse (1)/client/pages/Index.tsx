@@ -1753,10 +1753,12 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                       </div>
 
                       <div className="space-y-2 pt-4 border-t">
-                        {isElectron && systemOverlayActive && (
+                        {(systemOverlayActive || webPreviewActive) && (
                           <div className="flex items-center justify-center space-x-2 py-2 px-3 bg-gaming-green/20 border border-gaming-green/30 rounded text-sm">
                             <div className="w-2 h-2 bg-gaming-green rounded-full animate-pulse"></div>
-                            <span className="text-gaming-green font-medium">System Overlay Active</span>
+                            <span className="text-gaming-green font-medium">
+                              {isElectron ? "System Overlay Active" : "Web Preview Active"}
+                            </span>
                           </div>
                         )}
 
