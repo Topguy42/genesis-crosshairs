@@ -1751,34 +1751,32 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
 
                         <SoundButton
                           onClick={async () => {
-                            // Desktop app only - Electron is required for separate overlay window
-                            if (!isElectron || !(window as any).electronAPI) {
-                              alert('System overlay requires the desktop app. This is a desktop-only feature.');
-                              return;
-                            }
+                            if (!selectedPreset) return;
 
-                            if (systemOverlayActive) {
-                              // Take Off - Hide separate overlay window
-                              try {
-                                await (window as any).electronAPI.hideOverlay();
-                                setSystemOverlayActive(false);
-                              } catch (error) {
-                                console.error('Failed to hide overlay:', error);
+                            if (isElectron && (window as any).electronAPI) {
+                              // Desktop app - Use separate Electron overlay window
+                              if (systemOverlayActive) {
+                                try {
+                                  await (window as any).electronAPI.hideOverlay();
+                                  setSystemOverlayActive(false);
+                                } catch (error) {
+                                  console.error('Failed to hide overlay:', error);
+                                }
+                              } else {
+                                try {
+                                  const currentCrosshair = getCurrentCrosshairSettings();
+                                  if (currentCrosshair) {
+                                    await (window as any).electronAPI.updateCrosshairSettings(currentCrosshair);
+                                    await (window as any).electronAPI.showOverlay();
+                                    setSystemOverlayActive(true);
+                                  }
+                                } catch (error) {
+                                  console.error('Failed to show overlay:', error);
+                                }
                               }
                             } else {
-                              // Use - Show separate overlay window
-                              if (!selectedPreset) return;
-
-                              try {
-                                const currentCrosshair = getCurrentCrosshairSettings();
-                                if (currentCrosshair) {
-                                  await (window as any).electronAPI.updateCrosshairSettings(currentCrosshair);
-                                  await (window as any).electronAPI.showOverlay();
-                                  setSystemOverlayActive(true);
-                                }
-                              } catch (error) {
-                                console.error('Failed to show overlay:', error);
-                              }
+                              // Web browser - Use built-in React overlay
+                              setSystemOverlayActive(!systemOverlayActive);
                             }
                           }}
                           className="w-full bg-gaming-purple hover:bg-gaming-purple/80"
