@@ -1463,6 +1463,12 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
           offsetY
         };
         await (window as any).electronAPI.updateCrosshairSettings(crosshairWithPosition);
+
+        // Force overlay refresh to ensure accurate positioning
+        if ((window as any).electronAPI.forceOverlayRefresh) {
+          console.log('Force refreshing overlay after position change...');
+          await (window as any).electronAPI.forceOverlayRefresh();
+        }
       }
     } catch (error) {
       console.error('Failed to update overlay position:', error);
