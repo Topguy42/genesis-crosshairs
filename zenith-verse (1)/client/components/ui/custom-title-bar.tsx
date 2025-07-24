@@ -48,21 +48,45 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
     };
   }, [inElectron]);
 
-  const handleMinimize = () => {
-    if ((window as any).electronAPI) {
-      (window as any).electronAPI.minimizeWindow();
+  const handleMinimize = async () => {
+    console.log('Minimize button clicked');
+    if ((window as any).electronAPI?.minimizeWindow) {
+      try {
+        const success = await (window as any).electronAPI.minimizeWindow();
+        console.log('Minimize operation success:', success);
+      } catch (error) {
+        console.error('Minimize failed:', error);
+      }
+    } else {
+      console.error('electronAPI.minimizeWindow not available');
     }
   };
 
-  const handleMaximize = () => {
-    if ((window as any).electronAPI) {
-      (window as any).electronAPI.maximizeWindow();
+  const handleMaximize = async () => {
+    console.log('Maximize button clicked');
+    if ((window as any).electronAPI?.maximizeWindow) {
+      try {
+        const success = await (window as any).electronAPI.maximizeWindow();
+        console.log('Maximize operation success:', success);
+      } catch (error) {
+        console.error('Maximize failed:', error);
+      }
+    } else {
+      console.error('electronAPI.maximizeWindow not available');
     }
   };
 
-  const handleClose = () => {
-    if ((window as any).electronAPI) {
-      (window as any).electronAPI.closeWindow();
+  const handleClose = async () => {
+    console.log('Close button clicked');
+    if ((window as any).electronAPI?.closeWindow) {
+      try {
+        const success = await (window as any).electronAPI.closeWindow();
+        console.log('Close operation success:', success);
+      } catch (error) {
+        console.error('Close failed:', error);
+      }
+    } else {
+      console.error('electronAPI.closeWindow not available');
     }
   };
 
