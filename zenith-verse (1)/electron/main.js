@@ -191,6 +191,7 @@ function createOverlayWindow() {
     acceptFirstMouse: false,
     disableAutoHideCursor: true,
     backgroundColor: '#00000000', // Fully transparent
+    roundedCorners: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
