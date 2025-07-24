@@ -1807,7 +1807,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                           <Eye className="w-4 h-4 mr-2" />
                           {systemOverlayActive
                             ? "Take Off"
-                            : isElectron ? "Use" : "Preview (Web Only)"
+                            : "Use"
                           }
                         </SoundButton>
 
