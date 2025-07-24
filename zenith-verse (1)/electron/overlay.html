@@ -760,6 +760,31 @@
         }
       }
 
+      function updateDebugInfo(centerX, centerY, offsetX, offsetY, settings) {
+        const debugElement = document.getElementById("debug-content");
+        const debugContainer = document.getElementById("position-debug");
+
+        if (debugElement && debugContainer) {
+          const finalX = centerX + (offsetX || 0);
+          const finalY = centerY + (offsetY || 0);
+
+          debugElement.innerHTML = `
+            Screen Center: ${centerX}, ${centerY}<br>
+            Offset: ${offsetX || 0}, ${offsetY || 0}<br>
+            Final Position: ${Math.round(finalX)}, ${Math.round(finalY)}<br>
+            Style: ${settings.style}<br>
+            Size: ${settings.size}px<br>
+            Window: ${window.innerWidth}x${window.innerHeight}
+          `;
+
+          // Show debug info for a few seconds when crosshair updates
+          debugContainer.style.display = 'block';
+          setTimeout(() => {
+            debugContainer.style.display = 'none';
+          }, 5000);
+        }
+      }
+
       function showHotkeyIndicator() {
         const indicator = document.getElementById("hotkey-indicator");
         indicator.classList.add("show");
