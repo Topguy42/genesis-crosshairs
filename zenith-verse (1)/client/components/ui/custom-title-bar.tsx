@@ -134,7 +134,12 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
       {/* Center - Status indicators */}
       <div className="flex-1 flex items-center justify-center">
         <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-          {/* Optional status indicators can go here */}
+          {/* Debug info for testing */}
+          {inElectron && (
+            <span className="text-xs">
+              API: {(window as any).electronAPI ? '✓' : '✗'}
+            </span>
+          )}
         </div>
       </div>
 
