@@ -1768,11 +1768,10 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                             console.log('electronAPI available:', !!(window as any).electronAPI);
                             console.log('selectedPreset:', selectedPreset);
 
-                            // For web testing - allow button text change even without Electron
+                            // For web testing - use browser overlay when Electron is not available
                             if (!isElectron || !(window as any).electronAPI) {
-                              console.warn('Electron API not available - crosshair overlay requires Electron environment');
-                              // Just toggle the button text for testing purposes
-                              setSystemOverlayActive(!systemOverlayActive);
+                              console.log('Using web preview mode for crosshair overlay');
+                              setWebPreviewActive(!webPreviewActive);
                               return;
                             }
 
