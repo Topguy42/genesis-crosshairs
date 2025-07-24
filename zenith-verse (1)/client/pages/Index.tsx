@@ -1806,7 +1806,7 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                           soundVolume={0.4}
                         >
                           <Eye className="w-4 h-4 mr-2" />
-                          {systemOverlayActive
+                          {(systemOverlayActive || previewOverlayActive)
                             ? "Take Off"
                             : "Use"
                           }
