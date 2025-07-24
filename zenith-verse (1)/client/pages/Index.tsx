@@ -1448,6 +1448,14 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
     // Update overlay position if active
     if (isElectron && (window as any).electronAPI && systemOverlayActive) {
       updateOverlayPosition(preset.offsetX, preset.offsetY);
+
+      // Additional force refresh for game preset changes
+      setTimeout(async () => {
+        if ((window as any).electronAPI.forceOverlayRefresh) {
+          console.log('Force refreshing overlay after game preset change...');
+          await (window as any).electronAPI.forceOverlayRefresh();
+        }
+      }, 200);
     }
   };
 
