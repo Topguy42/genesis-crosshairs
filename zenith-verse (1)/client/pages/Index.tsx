@@ -4603,6 +4603,28 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
           </div>
         </footer>
       </div>
+
+      {/* Web Preview Overlay */}
+      {webPreviewActive && selectedPreset && !isElectron && (
+        <CrosshairOverlay
+          crosshair={(() => {
+            const currentSettings = customizations[selectedPreset.id] || {};
+            return {
+              style: selectedPreset.style,
+              color: currentSettings.color || selectedPreset.color,
+              size: currentSettings.size || selectedPreset.size,
+              opacity: currentSettings.opacity || selectedPreset.opacity,
+              thickness: currentSettings.thickness || selectedPreset.thickness || 2,
+              gap: currentSettings.gap || selectedPreset.gap || 0,
+              offsetX: positionSettings.offsetX,
+              offsetY: positionSettings.offsetY,
+              imageUrl: (selectedPreset as any).imageUrl,
+            };
+          })()}
+          isVisible={webPreviewActive}
+          onHide={() => setWebPreviewActive(false)}
+        />
+      )}
     </>
   );
 }
