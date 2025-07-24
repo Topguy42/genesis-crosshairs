@@ -1764,7 +1764,9 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                             console.log('Current systemOverlayActive:', systemOverlayActive);
                             console.log('isElectron:', isElectron);
                             console.log('electronAPI available:', !!(window as any).electronAPI);
+                            console.log('electronAPI methods:', (window as any).electronAPI ? Object.keys((window as any).electronAPI) : 'none');
                             console.log('selectedPreset:', selectedPreset);
+                            console.log('platform info:', (window as any).platform);
 
                             // Desktop app only - Electron is required for system overlay
                             if (!isElectron || !(window as any).electronAPI) {
