@@ -198,6 +198,9 @@
         crosshairElement.style.left = `${centerX + offsetX}px`;
         crosshairElement.style.transform = "translate(-50%, -50%)";
 
+        // Show test markers for debugging (temporarily)
+        showTestMarkers(centerX, centerY, offsetX, offsetY);
+
         // Update debug information
         updateDebugInfo(centerX, centerY, offsetX, offsetY, settings);
 
