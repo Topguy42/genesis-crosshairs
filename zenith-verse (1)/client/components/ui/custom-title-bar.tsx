@@ -17,6 +17,10 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
   const inElectron = isElectron();
 
   useEffect(() => {
+    console.log('CustomTitleBar useEffect - inElectron:', inElectron);
+    console.log('electronAPI available:', !!(window as any).electronAPI);
+    console.log('electronAPI methods:', (window as any).electronAPI ? Object.keys((window as any).electronAPI) : 'N/A');
+
     if (!inElectron) return;
 
     const electronAPI = (window as any).electronAPI;
