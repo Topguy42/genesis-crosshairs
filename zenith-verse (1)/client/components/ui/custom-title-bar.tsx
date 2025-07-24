@@ -178,7 +178,7 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
               Test API
             </button>
           ) : (
-            <span className="text-xs text-red-400">Not in Electron</span>
+            <span className="text-xs text-red-400" />
           )}
         </div>
       </div>
