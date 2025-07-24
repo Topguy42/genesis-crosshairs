@@ -575,51 +575,32 @@ ipcMain.handle("force-overlay-refresh", () => {
   return false;
 });
 
-// Get primary display center coordinates relative to overlay window
+// Get primary display center coordinates - SIMPLIFIED
 ipcMain.on("get-primary-display-center", (event) => {
   try {
     const primaryDisplay = screen.getPrimaryDisplay();
-    const allDisplays = screen.getAllDisplays();
+    const { width, height } = primaryDisplay.bounds;
 
-    // Calculate overlay window origin (top-left)
-    let overlayMinX = 0, overlayMinY = 0;
+    // Since overlay covers the primary display exactly, center is simply:
+    const centerX = width / 2;
+    const centerY = height / 2;
 
-    if (allDisplays.length > 0) {
-      overlayMinX = Math.min(...allDisplays.map(d => d.bounds.x));
-      overlayMinY = Math.min(...allDisplays.map(d => d.bounds.y));
-    }
-
-    // Calculate primary display center in screen coordinates
-    const primaryBounds = primaryDisplay.bounds;
-    const primaryScreenCenterX = primaryBounds.x + (primaryBounds.width / 2);
-    const primaryScreenCenterY = primaryBounds.y + (primaryBounds.height / 2);
-
-    // Convert to overlay window coordinates
-    const primaryCenterX = primaryScreenCenterX - overlayMinX;
-    const primaryCenterY = primaryScreenCenterY - overlayMinY;
-
-    console.log('Primary display center calculation:', {
-      primaryBounds,
-      primaryScreenCenter: { x: primaryScreenCenterX, y: primaryScreenCenterY },
-      overlayOrigin: { x: overlayMinX, y: overlayMinY },
-      overlayRelativeCenter: { x: primaryCenterX, y: primaryCenterY }
+    console.log('SIMPLIFIED primary display center:', {
+      displaySize: { width, height },
+      center: { x: centerX, y: centerY }
     });
 
     event.returnValue = {
-      x: primaryCenterX,
-      y: primaryCenterY,
-      primaryBounds: primaryBounds,
-      overlayOrigin: { x: overlayMinX, y: overlayMinY },
-      screenCenter: { x: primaryScreenCenterX, y: primaryScreenCenterY }
+      x: centerX,
+      y: centerY,
+      displaySize: { width, height }
     };
   } catch (error) {
     console.error('Error calculating primary display center:', error);
-    // Fallback to overlay window center
-    const fallbackX = overlayWindow ? overlayWindow.getBounds().width / 2 : 0;
-    const fallbackY = overlayWindow ? overlayWindow.getBounds().height / 2 : 0;
+    // Simple fallback
     event.returnValue = {
-      x: fallbackX,
-      y: fallbackY
+      x: 960, // Common center for 1920x1080
+      y: 540
     };
   }
 });
