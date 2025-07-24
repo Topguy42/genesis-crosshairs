@@ -50,55 +50,97 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
 
   const handleMinimize = () => {
     console.log('=== MINIMIZE BUTTON CLICKED ===');
-    console.log('window object:', typeof window);
-    console.log('electronAPI exists:', !!(window as any).electronAPI);
-    console.log('electronAPI object:', (window as any).electronAPI);
 
     try {
+      // Try the main electronAPI first
       if ((window as any).electronAPI?.minimizeWindow) {
-        console.log('Calling minimizeWindow...');
+        console.log('Using electronAPI.minimizeWindow');
         (window as any).electronAPI.minimizeWindow();
-      } else {
-        console.error('minimizeWindow method not found on electronAPI');
+        return;
       }
+
+      // Try the simpler windowControls API as fallback
+      if ((window as any).windowControls?.minimize) {
+        console.log('Using windowControls.minimize');
+        (window as any).windowControls.minimize();
+        return;
+      }
+
+      // Direct IPC as last resort
+      if ((window as any).require) {
+        console.log('Using direct IPC');
+        const { ipcRenderer } = (window as any).require('electron');
+        ipcRenderer.send('window-minimize');
+        return;
+      }
+
+      console.error('No window control method available');
     } catch (error) {
-      console.error('Error calling minimizeWindow:', error);
+      console.error('Error calling minimize:', error);
     }
   };
 
   const handleMaximize = () => {
     console.log('=== MAXIMIZE BUTTON CLICKED ===');
-    console.log('window object:', typeof window);
-    console.log('electronAPI exists:', !!(window as any).electronAPI);
-    console.log('electronAPI object:', (window as any).electronAPI);
 
     try {
+      // Try the main electronAPI first
       if ((window as any).electronAPI?.maximizeWindow) {
-        console.log('Calling maximizeWindow...');
+        console.log('Using electronAPI.maximizeWindow');
         (window as any).electronAPI.maximizeWindow();
-      } else {
-        console.error('maximizeWindow method not found on electronAPI');
+        return;
       }
+
+      // Try the simpler windowControls API as fallback
+      if ((window as any).windowControls?.maximize) {
+        console.log('Using windowControls.maximize');
+        (window as any).windowControls.maximize();
+        return;
+      }
+
+      // Direct IPC as last resort
+      if ((window as any).require) {
+        console.log('Using direct IPC');
+        const { ipcRenderer } = (window as any).require('electron');
+        ipcRenderer.send('window-maximize');
+        return;
+      }
+
+      console.error('No window control method available');
     } catch (error) {
-      console.error('Error calling maximizeWindow:', error);
+      console.error('Error calling maximize:', error);
     }
   };
 
   const handleClose = () => {
     console.log('=== CLOSE BUTTON CLICKED ===');
-    console.log('window object:', typeof window);
-    console.log('electronAPI exists:', !!(window as any).electronAPI);
-    console.log('electronAPI object:', (window as any).electronAPI);
 
     try {
+      // Try the main electronAPI first
       if ((window as any).electronAPI?.closeWindow) {
-        console.log('Calling closeWindow...');
+        console.log('Using electronAPI.closeWindow');
         (window as any).electronAPI.closeWindow();
-      } else {
-        console.error('closeWindow method not found on electronAPI');
+        return;
       }
+
+      // Try the simpler windowControls API as fallback
+      if ((window as any).windowControls?.close) {
+        console.log('Using windowControls.close');
+        (window as any).windowControls.close();
+        return;
+      }
+
+      // Direct IPC as last resort
+      if ((window as any).require) {
+        console.log('Using direct IPC');
+        const { ipcRenderer } = (window as any).require('electron');
+        ipcRenderer.send('window-close');
+        return;
+      }
+
+      console.error('No window control method available');
     } catch (error) {
-      console.error('Error calling closeWindow:', error);
+      console.error('Error calling close:', error);
     }
   };
 
