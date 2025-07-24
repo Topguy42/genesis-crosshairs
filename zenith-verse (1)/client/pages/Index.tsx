@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CrosshairCard } from "@/components/ui/crosshair-card";
+import { CrosshairOverlay } from "@/components/ui/crosshair-overlay";
 
 import { AimTrainer } from "@/components/ui/aim-trainer";
 import { AimTrainer3D } from "@/components/ui/aim-trainer-3d";
