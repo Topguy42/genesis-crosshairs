@@ -270,24 +270,27 @@ function updateOverlayBounds() {
   if (!overlayWindow) return;
 
   try {
-    // Recalculate bounds for all displays with buffer
+    // Recalculate bounds for all displays
     const displays = screen.getAllDisplays();
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
-    displays.forEach(display => {
-      const { x, y, width, height } = display.bounds;
-      minX = Math.min(minX, x);
-      minY = Math.min(minY, y);
-      maxX = Math.max(maxX, x + width);
-      maxY = Math.max(maxY, y + height);
-    });
+    let minX = 0, minY = 0, maxX = 0, maxY = 0;
 
-    // Add buffer for complete coverage
-    const buffer = 100;
-    const totalWidth = maxX - minX + (buffer * 2);
-    const totalHeight = maxY - minY + (buffer * 2);
-    minX -= buffer;
-    minY -= buffer;
+    if (displays.length > 0) {
+      minX = Math.min(...displays.map(d => d.bounds.x));
+      minY = Math.min(...displays.map(d => d.bounds.y));
+      maxX = Math.max(...displays.map(d => d.bounds.x + d.bounds.width));
+      maxY = Math.max(...displays.map(d => d.bounds.y + d.bounds.height));
+    } else {
+      // Fallback to primary display
+      const primaryDisplay = screen.getPrimaryDisplay();
+      minX = 0;
+      minY = 0;
+      maxX = primaryDisplay.bounds.width;
+      maxY = primaryDisplay.bounds.height;
+    }
+
+    const totalWidth = maxX - minX;
+    const totalHeight = maxY - minY;
 
     // Update overlay bounds
     overlayWindow.setBounds({
@@ -302,7 +305,8 @@ function updateOverlayBounds() {
       y: minY,
       width: totalWidth,
       height: totalHeight,
-      displays: displays.length
+      displays: displays.length,
+      allDisplays: displays.map(d => d.bounds)
     });
   } catch (error) {
     console.error('Error updating overlay bounds:', error);
