@@ -45,18 +45,21 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
   }, [inElectron]);
 
   const handleMinimize = () => {
+    console.log('Minimize clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
     if (inElectron) {
       (window as any).electronAPI.minimizeWindow();
     }
   };
 
   const handleMaximize = () => {
+    console.log('Maximize clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
     if (inElectron) {
       (window as any).electronAPI.maximizeWindow();
     }
   };
 
   const handleClose = () => {
+    console.log('Close clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
     if (inElectron) {
       (window as any).electronAPI.closeWindow();
     }
