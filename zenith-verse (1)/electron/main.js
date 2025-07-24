@@ -144,32 +144,26 @@ function createMainWindow() {
 }
 
 function createOverlayWindow() {
-  // Get all displays to calculate total screen area
-  const displays = screen.getAllDisplays();
+  // Get all display information for debugging
+  const allDisplays = screen.getAllDisplays();
+  const primaryDisplay = screen.getPrimaryDisplay();
 
-  // Calculate bounds to cover all monitors with extra buffer for safety
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  console.log('=== OVERLAY WINDOW CREATION DEBUG ===');
+  console.log('All displays:', allDisplays.map(d => ({ id: d.id, bounds: d.bounds, scaleFactor: d.scaleFactor })));
+  console.log('Primary display:', primaryDisplay);
 
-  displays.forEach(display => {
-    const { x, y, width, height } = display.bounds;
-    minX = Math.min(minX, x);
-    minY = Math.min(minY, y);
-    maxX = Math.max(maxX, x + width);
-    maxY = Math.max(maxY, y + height);
-  });
+  // Use primary display bounds - this should cover the entire primary screen
+  const { x, y, width, height } = primaryDisplay.bounds;
 
-  // Add buffer to ensure complete coverage
-  const buffer = 100;
-  const totalWidth = maxX - minX + (buffer * 2);
-  const totalHeight = maxY - minY + (buffer * 2);
-  minX -= buffer;
-  minY -= buffer;
+  console.log('Creating overlay with bounds:', { x, y, width, height });
+  console.log('Overlay will be positioned at screen coordinates:', { x, y });
+  console.log('Overlay size:', { width, height });
 
   overlayWindow = new BrowserWindow({
-    width: totalWidth,
-    height: totalHeight,
-    x: minX,
-    y: minY,
+    width: width,
+    height: height,
+    x: x,
+    y: y,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
@@ -188,12 +182,16 @@ function createOverlayWindow() {
     acceptFirstMouse: false,
     disableAutoHideCursor: true,
     backgroundColor: '#00000000', // Fully transparent
+    roundedCorners: false,
+    parent: null, // Ensure this is not a child window of main window
+    modal: false, // Not modal to main window
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "overlay-preload.js"),
       backgroundThrottling: false, // Prevent throttling when app is not focused
       offscreen: false,
+      webSecurity: false, // Allow cross-origin for overlay functionality
     },
   });
 
@@ -204,6 +202,15 @@ function createOverlayWindow() {
   if (process.platform === 'win32') {
     // Windows: Use screen-saver level for highest priority
     overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+    // Force window to front immediately
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.setAlwaysOnTop(false);
+        overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+        overlayWindow.focus();
+        overlayWindow.blur(); // Remove focus to maintain click-through
+      }
+    }, 100);
   } else if (process.platform === 'darwin') {
     // macOS: Use floating level
     overlayWindow.setAlwaysOnTop(true, 'floating');
@@ -215,13 +222,21 @@ function createOverlayWindow() {
   // Additional visibility settings for cross-platform support
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
+  // Verify overlay window was created with correct bounds
+  const actualBounds = overlayWindow.getBounds();
   console.log('Overlay window created with bounds:', {
-    x: minX,
-    y: minY,
-    width: totalWidth,
-    height: totalHeight,
-    platform: process.platform
+    requested: { x, y, width, height },
+    actual: actualBounds,
+    platform: process.platform,
+    primary: true
   });
+
+  // Double-check that overlay covers the expected area
+  if (actualBounds.x !== x || actualBounds.y !== y || actualBounds.width !== width || actualBounds.height !== height) {
+    console.warn('⚠️ Overlay bounds mismatch! Attempting to correct...');
+    overlayWindow.setBounds({ x, y, width, height });
+    console.log('Corrected bounds:', overlayWindow.getBounds());
+  }
 
   // Load overlay HTML
   overlayWindow.loadFile(path.join(__dirname, "overlay.html"));
@@ -261,39 +276,20 @@ function updateOverlayBounds() {
   if (!overlayWindow) return;
 
   try {
-    // Recalculate bounds for all displays with buffer
-    const displays = screen.getAllDisplays();
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
-    displays.forEach(display => {
-      const { x, y, width, height } = display.bounds;
-      minX = Math.min(minX, x);
-      minY = Math.min(minY, y);
-      maxX = Math.max(maxX, x + width);
-      maxY = Math.max(maxY, y + height);
-    });
-
-    // Add buffer for complete coverage
-    const buffer = 100;
-    const totalWidth = maxX - minX + (buffer * 2);
-    const totalHeight = maxY - minY + (buffer * 2);
-    minX -= buffer;
-    minY -= buffer;
+    // Use primary display only for simplicity
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { x, y, width, height } = primaryDisplay.bounds;
 
     // Update overlay bounds
     overlayWindow.setBounds({
-      x: minX,
-      y: minY,
-      width: totalWidth,
-      height: totalHeight
+      x: x,
+      y: y,
+      width: width,
+      height: height
     });
 
-    console.log('Overlay bounds updated:', {
-      x: minX,
-      y: minY,
-      width: totalWidth,
-      height: totalHeight,
-      displays: displays.length
+    console.log('Overlay bounds updated to primary display:', {
+      x, y, width, height
     });
   } catch (error) {
     console.error('Error updating overlay bounds:', error);
@@ -312,6 +308,18 @@ function toggleOverlay() {
   console.log('Overlay visibility set to:', crosshairSettings.visible);
 
   if (crosshairSettings.visible) {
+    // FORCE COMPLETE RESET of overlay positioning
+    console.log('=== FORCING OVERLAY RESET ===');
+
+    // Get fresh display information
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { x, y, width, height } = primaryDisplay.bounds;
+    console.log('Fresh primary display bounds:', { x, y, width, height });
+
+    // Force set bounds
+    overlayWindow.setBounds({ x, y, width, height });
+    console.log('Overlay bounds after force set:', overlayWindow.getBounds());
+
     // Ensure bounds are correct before showing
     updateOverlayBounds();
 
@@ -512,7 +520,16 @@ ipcMain.handle("update-crosshair-settings", (event, settings) => {
 
   if (overlayWindow && crosshairSettings.visible) {
     console.log('Sending updated settings to overlay window');
-    overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+
+    // Ensure proper positioning by refreshing overlay bounds first
+    updateOverlayBounds();
+
+    // Wait a moment for bounds to settle, then send crosshair settings
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+      }
+    }, 100);
   }
 
   return crosshairSettings;
@@ -527,6 +544,15 @@ ipcMain.handle("show-overlay", () => {
   console.log('Show overlay requested, current visible:', crosshairSettings.visible);
   if (!crosshairSettings.visible) {
     toggleOverlay();
+  } else if (overlayWindow) {
+    // If already visible, refresh positioning to ensure accuracy
+    console.log('Overlay already visible, refreshing position');
+    updateOverlayBounds();
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+      }
+    }, 100);
   }
 });
 
@@ -557,33 +583,66 @@ ipcMain.handle("force-overlay-top", () => {
 // Handle overlay repositioning
 ipcMain.handle("refresh-overlay", () => {
   if (overlayWindow && crosshairSettings.visible) {
+    console.log('Refreshing overlay positioning');
     updateOverlayBounds();
-    overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+      }
+    }, 100);
   }
 });
 
-// Get primary display center coordinates relative to overlay window
+// Force overlay repositioning - useful when game presets change
+ipcMain.handle("force-overlay-refresh", () => {
+  if (overlayWindow) {
+    console.log('Force refreshing overlay - recalculating all positioning');
+
+    // First update bounds
+    updateOverlayBounds();
+
+    // Then ensure crosshair positioning is accurate
+    if (crosshairSettings.visible) {
+      setTimeout(() => {
+        if (overlayWindow && !overlayWindow.isDestroyed()) {
+          overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+        }
+      }, 150);
+    }
+
+    return true;
+  }
+  return false;
+});
+
+// Get primary display center coordinates - SIMPLIFIED
 ipcMain.on("get-primary-display-center", (event) => {
-  const primaryDisplay = screen.getPrimaryDisplay();
-  const allDisplays = screen.getAllDisplays();
+  try {
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width, height } = primaryDisplay.bounds;
 
-  // Calculate overlay window offset
-  let minX = Infinity, minY = Infinity;
-  allDisplays.forEach(display => {
-    const { x, y } = display.bounds;
-    minX = Math.min(minX, x);
-    minY = Math.min(minY, y);
-  });
+    // Since overlay covers the primary display exactly, center is simply:
+    const centerX = width / 2;
+    const centerY = height / 2;
 
-  // Calculate primary display center relative to overlay window
-  const primaryBounds = primaryDisplay.bounds;
-  const primaryCenterX = primaryBounds.x + (primaryBounds.width / 2) - minX;
-  const primaryCenterY = primaryBounds.y + (primaryBounds.height / 2) - minY;
+    console.log('SIMPLIFIED primary display center:', {
+      displaySize: { width, height },
+      center: { x: centerX, y: centerY }
+    });
 
-  event.returnValue = {
-    x: primaryCenterX,
-    y: primaryCenterY
-  };
+    event.returnValue = {
+      x: centerX,
+      y: centerY,
+      displaySize: { width, height }
+    };
+  } catch (error) {
+    console.error('Error calculating primary display center:', error);
+    // Simple fallback
+    event.returnValue = {
+      x: 960, // Common center for 1920x1080
+      y: 540
+    };
+  }
 });
 
 // Enable desktop-wide dragging mode

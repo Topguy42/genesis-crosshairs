@@ -30,12 +30,24 @@ const DraggableDialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
   // Check if we're in Electron
-  const inElectron = React.useMemo(() => isElectron(), []);
+  const inElectron = React.useMemo(() => {
+    const isElectronEnv = isElectron();
+    console.log('DraggableDialog: Electron detection:', isElectronEnv);
+    console.log('DraggableDialog: electronAPI available:', !!(window as any).electronAPI);
+    return isElectronEnv;
+  }, []);
 
   const { position, isDragging, elementRef, handleMouseDown, resetPosition } = useDraggable({
     disableTransform: true,
     constrainToWindow: false, // Allow dialogs to move freely across desktop for gaming overlay
     enableDesktopDragging: inElectron // Enable true desktop-wide dragging in Electron
+  });
+
+  console.log('DraggableDialog: useDraggable config:', {
+    disableTransform: true,
+    constrainToWindow: false,
+    enableDesktopDragging: inElectron,
+    inElectron
   });
 
   // Reset position when dialog opens/closes

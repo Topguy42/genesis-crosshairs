@@ -633,7 +633,7 @@ export default function Index() {
   const [showEditor, setShowEditor] = useState(false);
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
   const [editorPreviewMode, setEditorPreviewMode] = useState(false);
-  const [isElectron, setIsElectron] = useState(true);
+  const [isElectron, setIsElectron] = useState(false);
   const [systemOverlayActive, setSystemOverlayActive] = useState(false);
   const [showPositionSettings, setShowPositionSettings] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -1448,6 +1448,14 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
     // Update overlay position if active
     if (isElectron && (window as any).electronAPI && systemOverlayActive) {
       updateOverlayPosition(preset.offsetX, preset.offsetY);
+
+      // Additional force refresh for game preset changes
+      setTimeout(async () => {
+        if ((window as any).electronAPI.forceOverlayRefresh) {
+          console.log('Force refreshing overlay after game preset change...');
+          await (window as any).electronAPI.forceOverlayRefresh();
+        }
+      }, 200);
     }
   };
 
@@ -1463,6 +1471,12 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
           offsetY
         };
         await (window as any).electronAPI.updateCrosshairSettings(crosshairWithPosition);
+
+        // Force overlay refresh to ensure accurate positioning
+        if ((window as any).electronAPI.forceOverlayRefresh) {
+          console.log('Force refreshing overlay after position change...');
+          await (window as any).electronAPI.forceOverlayRefresh();
+        }
       }
     } catch (error) {
       console.error('Failed to update overlay position:', error);
@@ -1597,6 +1611,12 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                 await (window as any).electronAPI.showOverlay();
                 setSystemOverlayActive(true);
                 console.log('System overlay activated!');
+              }
+
+              // Force overlay refresh to ensure proper positioning
+              if ((window as any).electronAPI.forceOverlayRefresh) {
+                console.log('Force refreshing overlay positioning...');
+                await (window as any).electronAPI.forceOverlayRefresh();
               }
             } catch (error) {
               console.error('Failed to update overlay crosshair:', error);

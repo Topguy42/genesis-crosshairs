@@ -67,15 +67,74 @@
       .hotkey-indicator.show {
         opacity: 1;
       }
+
+      .position-debug {
+        position: fixed;
+        top: 60px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-family: monospace;
+        opacity: 0.7;
+        max-width: 300px;
+        line-height: 1.3;
+      }
     </style>
   </head>
   <body>
     <div class="overlay-container">
       <div id="crosshair" class="crosshair"></div>
+
+      <!-- Visual test markers - will be removed after testing -->
+      <div id="center-test-marker" style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100px;
+        height: 100px;
+        border: 3px solid red;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 999999;
+        display: none;
+      ">
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          color: red;
+          font-size: 12px;
+          font-weight: bold;
+          text-align: center;
+          white-space: nowrap;
+        ">CENTER<br>TEST</div>
+      </div>
+
+      <!-- Crosshair test marker -->
+      <div id="crosshair-test-marker" style="
+        position: fixed;
+        width: 4px;
+        height: 4px;
+        background: lime;
+        border: 1px solid black;
+        pointer-events: none;
+        z-index: 999998;
+        display: none;
+      "></div>
     </div>
 
     <div id="hotkey-indicator" class="hotkey-indicator">
       Press F1 to toggle crosshair
+    </div>
+
+    <div id="position-debug" class="position-debug" style="display: none;">
+      <div>Crosshair Position Debug</div>
+      <div id="debug-content"></div>
     </div>
 
     <script>
@@ -103,32 +162,55 @@
         crosshairElement.style.width = size + "px";
         crosshairElement.style.height = size + "px";
 
-        // Apply position offset - center on primary display regardless of multi-monitor setup
-        // Get primary screen center from the overlay API
+        // SIMPLIFIED APPROACH: Just use the window center
+        // Since overlay now covers the primary display exactly, center = window center
         let centerX = window.innerWidth / 2;
         let centerY = window.innerHeight / 2;
 
-        // If we have overlay API, get the actual primary screen center
+        console.log('=== DETAILED CROSSHAIR POSITIONING DEBUG ===');
+        console.log('Overlay window size:', window.innerWidth, 'x', window.innerHeight);
+        console.log('Window screen position:', window.screenX, window.screenY);
+        console.log('Calculated center:', centerX, centerY);
+        console.log('User offsets:', offsetX, offsetY);
+        console.log('Final position:', Math.round(centerX + offsetX), Math.round(centerY + offsetY));
+        console.log('Screen info - outerWidth:', window.outerWidth, 'outerHeight:', window.outerHeight);
+        console.log('Screen info - availWidth:', screen.availWidth, 'availHeight:', screen.availHeight);
+        console.log('Screen info - width:', screen.width, 'height:', screen.height);
+
+        // Optional: Try to get precise center from API, but don't rely on it
         if (window.overlayAPI && window.overlayAPI.getPrimaryDisplayCenter) {
           try {
             const primaryCenter = window.overlayAPI.getPrimaryDisplayCenter();
             if (primaryCenter && primaryCenter.x !== undefined && primaryCenter.y !== undefined) {
-              centerX = primaryCenter.x;
-              centerY = primaryCenter.y;
-              console.log('Using primary display center:', primaryCenter);
-            } else {
-              console.log('Primary display center not available, using fallback');
+              console.log('API says center should be:', primaryCenter.x, primaryCenter.y);
+              console.log('Difference from calculated:',
+                Math.abs(centerX - primaryCenter.x),
+                Math.abs(centerY - primaryCenter.y)
+              );
+
+              // Use API center if it seems reasonable
+              if (Math.abs(centerX - primaryCenter.x) < 100 && Math.abs(centerY - primaryCenter.y) < 100) {
+                centerX = primaryCenter.x;
+                centerY = primaryCenter.y;
+                console.log('Using API center coordinates');
+              } else {
+                console.log('API center seems wrong, using calculated center');
+              }
             }
           } catch (error) {
-            console.warn('Failed to get primary display center:', error);
+            console.log('API center failed, using calculated center:', error.message);
           }
-        } else {
-          console.log('Overlay API not available for primary display center');
         }
 
         crosshairElement.style.top = `${centerY + offsetY}px`;
         crosshairElement.style.left = `${centerX + offsetX}px`;
         crosshairElement.style.transform = "translate(-50%, -50%)";
+
+        // Show test markers for debugging (temporarily)
+        showTestMarkers(centerX, centerY, offsetX, offsetY);
+
+        // Update debug information
+        updateDebugInfo(centerX, centerY, offsetX, offsetY, settings);
 
         const centerSize = size;
         const lineLength = (centerSize - gap) / 2;
@@ -734,6 +816,66 @@
         }
       }
 
+      function showTestMarkers(centerX, centerY, offsetX, offsetY) {
+        // Show center test marker (red circle at true center)
+        const centerMarker = document.getElementById("center-test-marker");
+        if (centerMarker) {
+          centerMarker.style.display = 'block';
+          setTimeout(() => {
+            centerMarker.style.display = 'none';
+          }, 10000); // Show for 10 seconds
+        }
+
+        // Show crosshair position marker (lime dot)
+        const crosshairMarker = document.getElementById("crosshair-test-marker");
+        if (crosshairMarker) {
+          crosshairMarker.style.top = `${centerY + offsetY}px`;
+          crosshairMarker.style.left = `${centerX + offsetX}px`;
+          crosshairMarker.style.transform = "translate(-50%, -50%)";
+          crosshairMarker.style.display = 'block';
+          setTimeout(() => {
+            crosshairMarker.style.display = 'none';
+          }, 10000); // Show for 10 seconds
+        }
+      }
+
+      function updateDebugInfo(centerX, centerY, offsetX, offsetY, settings) {
+        const debugElement = document.getElementById("debug-content");
+        const debugContainer = document.getElementById("position-debug");
+
+        if (debugElement && debugContainer) {
+          const finalX = centerX + (offsetX || 0);
+          const finalY = centerY + (offsetY || 0);
+
+          // Get additional debug info
+          let primaryCenterInfo = "Not available";
+          if (window.overlayAPI && window.overlayAPI.getPrimaryDisplayCenter) {
+            try {
+              const info = window.overlayAPI.getPrimaryDisplayCenter();
+              primaryCenterInfo = `Screen: ${info.screenCenter?.x || 'N/A'}, ${info.screenCenter?.y || 'N/A'}<br>Overlay Origin: ${info.overlayOrigin?.x || 'N/A'}, ${info.overlayOrigin?.y || 'N/A'}`;
+            } catch (e) {
+              primaryCenterInfo = "Error: " + e.message;
+            }
+          }
+
+          debugElement.innerHTML = `
+            <strong>Overlay Debug Info:</strong><br>
+            Window Size: ${window.innerWidth}x${window.innerHeight}<br>
+            Calculated Center: ${centerX}, ${centerY}<br>
+            User Offset: ${offsetX || 0}, ${offsetY || 0}<br>
+            Final Position: ${Math.round(finalX)}, ${Math.round(finalY)}<br>
+            ${primaryCenterInfo}<br>
+            Style: ${settings.style} | Size: ${settings.size}px
+          `;
+
+          // Show debug info for longer to help with troubleshooting
+          debugContainer.style.display = 'block';
+          setTimeout(() => {
+            debugContainer.style.display = 'none';
+          }, 8000);
+        }
+      }
+
       function showHotkeyIndicator() {
         const indicator = document.getElementById("hotkey-indicator");
         indicator.classList.add("show");
@@ -749,6 +891,23 @@
           renderCrosshair(settings);
           showHotkeyIndicator();
         });
+
+        // Test positioning immediately when overlay loads
+        setTimeout(() => {
+          const testSettings = {
+            style: 'cross',
+            color: '#ff0000',
+            size: 30,
+            opacity: 100,
+            thickness: 3,
+            gap: 0,
+            offsetX: 0,
+            offsetY: 0
+          };
+          console.log('=== OVERLAY LOAD TEST ===');
+          console.log('Testing crosshair positioning on overlay load...');
+          renderCrosshair(testSettings);
+        }, 1000);
       }
 
       // Show hotkey indicator on load
