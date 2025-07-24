@@ -536,6 +536,15 @@ ipcMain.handle("show-overlay", () => {
   console.log('Show overlay requested, current visible:', crosshairSettings.visible);
   if (!crosshairSettings.visible) {
     toggleOverlay();
+  } else if (overlayWindow) {
+    // If already visible, refresh positioning to ensure accuracy
+    console.log('Overlay already visible, refreshing position');
+    updateOverlayBounds();
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.webContents.send("update-crosshair", crosshairSettings);
+      }
+    }, 100);
   }
 });
 
