@@ -377,7 +377,7 @@ const crosshairPresets = [
 
 const categories = [
   { id: "all", name: "All Crosshairs", icon: Target },
-  { id: "minimal", name: "Minimal", icon: Crosshair },
+  { id: "minimal", name: "Minimal", icon: CrosshairIcon },
   { id: "classic", name: "Classic", icon: Zap },
   { id: "modern", name: "Modern", icon: Settings },
   { id: "unique", name: "Unique", icon: Target },
