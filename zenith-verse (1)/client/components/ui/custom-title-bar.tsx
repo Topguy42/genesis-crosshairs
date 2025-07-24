@@ -48,45 +48,51 @@ export const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
     };
   }, [inElectron]);
 
-  const handleMinimize = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Minimize clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
-    if (inElectron && (window as any).electronAPI) {
-      try {
-        (window as any).electronAPI.minimizeWindow();
-        console.log('Minimize window called successfully');
-      } catch (error) {
-        console.error('Error calling minimizeWindow:', error);
-      }
+  const handleMinimize = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    const electronAPI = (window as any).electronAPI;
+    console.log('Minimize button pressed');
+
+    if (electronAPI && electronAPI.minimizeWindow) {
+      electronAPI.minimizeWindow()
+        .then(() => console.log('Window minimized successfully'))
+        .catch((error: any) => console.error('Failed to minimize window:', error));
+    } else {
+      console.warn('ElectronAPI or minimizeWindow method not available');
     }
   };
 
-  const handleMaximize = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Maximize clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
-    if (inElectron && (window as any).electronAPI) {
-      try {
-        (window as any).electronAPI.maximizeWindow();
-        console.log('Maximize window called successfully');
-      } catch (error) {
-        console.error('Error calling maximizeWindow:', error);
-      }
+  const handleMaximize = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    const electronAPI = (window as any).electronAPI;
+    console.log('Maximize button pressed');
+
+    if (electronAPI && electronAPI.maximizeWindow) {
+      electronAPI.maximizeWindow()
+        .then(() => console.log('Window maximize/restore toggled successfully'))
+        .catch((error: any) => console.error('Failed to toggle window maximize:', error));
+    } else {
+      console.warn('ElectronAPI or maximizeWindow method not available');
     }
   };
 
-  const handleClose = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Close clicked, inElectron:', inElectron, 'electronAPI:', !!(window as any).electronAPI);
-    if (inElectron && (window as any).electronAPI) {
-      try {
-        (window as any).electronAPI.closeWindow();
-        console.log('Close window called successfully');
-      } catch (error) {
-        console.error('Error calling closeWindow:', error);
-      }
+  const handleClose = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    const electronAPI = (window as any).electronAPI;
+    console.log('Close button pressed');
+
+    if (electronAPI && electronAPI.closeWindow) {
+      electronAPI.closeWindow()
+        .then(() => console.log('Window close triggered successfully'))
+        .catch((error: any) => console.error('Failed to close window:', error));
+    } else {
+      console.warn('ElectronAPI or closeWindow method not available');
     }
   };
 
