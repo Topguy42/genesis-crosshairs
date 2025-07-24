@@ -151,10 +151,10 @@ function createOverlayWindow() {
   console.log('Creating overlay on primary display:', { x, y, width, height });
 
   overlayWindow = new BrowserWindow({
-    width: totalWidth,
-    height: totalHeight,
-    x: minX,
-    y: minY,
+    width: width,
+    height: height,
+    x: x,
+    y: y,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
