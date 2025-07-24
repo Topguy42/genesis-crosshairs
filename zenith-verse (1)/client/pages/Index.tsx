@@ -1598,6 +1598,12 @@ Opacity: ${config.opacity}%${config.thickness ? `\nThickness: ${config.thickness
                 setSystemOverlayActive(true);
                 console.log('System overlay activated!');
               }
+
+              // Force overlay refresh to ensure proper positioning
+              if ((window as any).electronAPI.forceOverlayRefresh) {
+                console.log('Force refreshing overlay positioning...');
+                await (window as any).electronAPI.forceOverlayRefresh();
+              }
             } catch (error) {
               console.error('Failed to update overlay crosshair:', error);
             }
