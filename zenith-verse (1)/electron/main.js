@@ -308,6 +308,18 @@ function toggleOverlay() {
   console.log('Overlay visibility set to:', crosshairSettings.visible);
 
   if (crosshairSettings.visible) {
+    // FORCE COMPLETE RESET of overlay positioning
+    console.log('=== FORCING OVERLAY RESET ===');
+
+    // Get fresh display information
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { x, y, width, height } = primaryDisplay.bounds;
+    console.log('Fresh primary display bounds:', { x, y, width, height });
+
+    // Force set bounds
+    overlayWindow.setBounds({ x, y, width, height });
+    console.log('Overlay bounds after force set:', overlayWindow.getBounds());
+
     // Ensure bounds are correct before showing
     updateOverlayBounds();
 
